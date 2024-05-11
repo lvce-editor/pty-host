@@ -77,7 +77,7 @@ test('handleWebsocket', async () => {
     result: null
   })
   const nextResponse = await waitForWebSocketMessage(webSocket)
-  const expectedValue = process.platform === 'win32' ? 'test\r\n\x1b25h' : {
+  const expectedValue = process.platform === 'win32' ? 'test\r\n25h' : {
     type: 'Buffer',
     data: [...Buffer.from('test\r\n')]
   }
