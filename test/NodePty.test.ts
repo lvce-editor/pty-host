@@ -26,21 +26,51 @@ test('pty', async () => {
   pty.kill()
 })
 
-// test.skip('Terminal echo', async () => {
-//   await new Promise((resolve) => {
-//     // @ts-ignore
-//     const terminal = create({
-//       env: {
-//         TEST: '`',
-//       },
-//       handleData(data) {
-//         if (data.toString().includes('`')) {
-//           terminal.dispose()
-//           // @ts-ignore
-//           resolve()
-//         }
-//       },
-//     })
-//     terminal.write('echo $TEST\n')
-//   })
-// })
+
+
+test('print data', async () => {
+  if (process.platform === 'win32') {
+    return
+  }
+  const pty = Pty.create({
+    cwd: process.cwd(),
+    command: process.execPath,
+    args: ['-e', 'console.log("abc")']
+  })
+
+  let allData = ''
+  Pty.onData(pty, (data) => {
+    allData += data
+  })
+  // @ts-ignore
+  await waitForExpect(() => {
+    expect(allData).toContain('abc')
+  })
+
+  pty.kill()
+})
+
+
+
+test('handle exec error', async () => {
+  if (process.platform === 'win32') {
+    return
+  }
+  const pty = Pty.create({
+    cwd: process.cwd(),
+    command: '/test/does-not-exist',
+    args: []
+  })
+
+  let exited = null
+  pty.onExit((event) => {
+    // @ts-ignore
+    exited = event
+  })
+  // @ts-ignore
+  await waitForExpect(() => {
+    // @ts-ignore
+    expect(exited.exitCode).toBe(1)
+  })
+  pty.kill()
+})
