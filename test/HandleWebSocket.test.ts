@@ -41,9 +41,6 @@ const waitForFirstRequest = async server => {
 }
 
 test('handleWebsocket', async () => {
-  if (process.platform === 'win32') {
-    return
-  }
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
