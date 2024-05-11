@@ -1,6 +1,5 @@
 import { beforeAll, expect, test } from '@jest/globals'
 import * as http from 'node:http'
-import { WebSocket } from 'ws'
 import * as CommandMap from '../src/parts/CommandMap/CommandMap.js'
 import * as CommandState from '../src/parts/CommandState/CommandState.js'
 import * as HandleWebSocket from '../src/parts/HandleWebSocket/HandleWebSocket.js'
@@ -48,15 +47,14 @@ test('handleWebsocket', async () => {
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
-
   const openPromise = new Promise(resolve => {
-    webSocket.once('open', resolve)
+    webSocket.addEventListener('open', resolve, { once: true })
   })
   // @ts-ignore
   await HandleWebSocket.handleWebSocket(request, httpRequest.socket)
   await openPromise
   const responsePromise = new Promise(resolve => {
-    webSocket.once('message', resolve)
+    webSocket.addEventListener('message', resolve, { once: true })
   })
 
   webSocket.send(JSON.stringify({
@@ -67,7 +65,7 @@ test('handleWebsocket', async () => {
   }))
   const response = await responsePromise
   // @ts-ignore
-  const responseString = response.toString()
+  const responseString = response.data.toString()
   const responseValue = JSON.parse(responseString)
   expect(responseValue).toEqual({
     jsonrpc: '2.0',
@@ -75,11 +73,11 @@ test('handleWebsocket', async () => {
     result: null
   })
   const nextResponsePromise = new Promise(resolve => {
-    webSocket.once('message', resolve)
+    webSocket.addEventListener('message', resolve, { once: true })
   })
   const nextResponse = await nextResponsePromise
   // @ts-ignore
-  const nextResponseString = nextResponse.toString()
+  const nextResponseString = nextResponse.data.toString()
   const nextResponseValue = JSON.parse(nextResponseString)
   expect(nextResponseValue).toEqual({
     jsonrpc: '2.0',
