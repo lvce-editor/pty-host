@@ -10,8 +10,9 @@ class DataEvent extends Event {
 }
 
 class ExitEvent extends Event {
-  constructor() {
+  constructor(data) {
     super("exit");
+    this.data = data;
   }
 }
 
@@ -27,19 +28,23 @@ class Pty extends EventTarget {
     const handleData = (data) => {
       this.dispatchEvent(new DataEvent(data));
     };
-    const handleExit = () => {
-      this.dispatchEvent(new ExitEvent());
+    const handleExit = (data) => {
+      this.dispatchEvent(new ExitEvent(data));
     };
     this.pty.onData(handleData);
     this.pty.onExit(handleExit);
   }
 
-  resize(columns, rows){
-    this.pty.resize(columns, rows)
+  resize(columns, rows) {
+    this.pty.resize(columns, rows);
   }
 
-  dispose(){
-    this.pty.kill()
+  dispose() {
+    this.pty.kill();
+  }
+
+  write(data) {
+    this.pty.write(data);
   }
 }
 
@@ -60,29 +65,4 @@ export const create = ({ env = {}, cwd, command, args } = {}) => {
   } catch (error) {
     throw new VError(error, `Failed to create terminal`);
   }
-};
-
-export const onData = (pty, fn) => {
-  Assert.object(pty);
-  pty.onData(fn);
-};
-
-export const write = (pty, data) => {
-  try {
-    Assert.object(pty);
-    pty.write(data);
-  } catch (error) {
-    throw new VError(error, `Failed to write data to terminal`);
-  }
-};
-
-export const resize = (pty, columns, rows) => {
-  Assert.object(pty);
-  Assert.number(columns);
-  Assert.number(rows);
-  pty.resize(columns, rows);
-};
-
-export const dispose = (pty) => {
-  pty.kill();
 };
