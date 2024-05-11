@@ -53,9 +53,6 @@ const waitForWebSocketMessage = async (webSocket: any) => {
 }
 
 test('handleWebsocket', async () => {
-  if (process.platform === 'win32') {
-    return
-  }
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
@@ -80,13 +77,14 @@ test('handleWebsocket', async () => {
     result: null
   })
   const nextResponse = await waitForWebSocketMessage(webSocket)
+  const expectedValue = process.platform === 'win32' ? expect.stringContaining('test') : {
+    type: 'Buffer',
+    data: [...Buffer.from('test\r\n')]
+  }
   expect(nextResponse).toEqual({
     jsonrpc: '2.0',
     method: 'Viewlet.send',
-    params: [2, 'handleData', {
-      type: 'Buffer',
-      data: [...Buffer.from('test\r\n')]
-    }]
+    params: [2, 'handleData', expectedValue]
   })
   // @ts-ignore
   httpRequest.socket.destroy()
