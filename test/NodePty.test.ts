@@ -2,7 +2,6 @@ import waitForExpect from 'wait-for-expect'
 import * as Pty from '../src/parts/Pty/Pty.js'
 import { test, expect } from '@jest/globals'
 
-
 test('pty', async () => {
   if (process.platform === 'win32') {
     return
@@ -14,16 +13,20 @@ test('pty', async () => {
   })
 
   let allData = ''
-  Pty.onData(pty, (data) => {
-    allData += data
+  pty.addEventListener('data', event => {
+    // @ts-ignore
+    allData += event.data
   })
-  Pty.write(pty, 'abc')
+
+  pty.write('abc')
+
   // @ts-ignore
   await waitForExpect(() => {
     expect(allData).toContain('abc')
   })
 
-  pty.kill()
+
+  pty.dispose()
 })
 
 
@@ -39,15 +42,16 @@ test('print data', async () => {
   })
 
   let allData = ''
-  Pty.onData(pty, (data) => {
-    allData += data
+  pty.addEventListener('data', event => {
+    // @ts-ignore
+    allData += event.data
   })
   // @ts-ignore
   await waitForExpect(() => {
     expect(allData).toContain('abc')
   })
 
-  pty.kill()
+  pty.dispose()
 })
 
 
@@ -63,14 +67,15 @@ test('handle exec error', async () => {
   })
 
   let exited = null
-  pty.onExit((event) => {
+  pty.addEventListener('exit', (event) => {
     // @ts-ignore
-    exited = event
+    exited = event.data
   })
   // @ts-ignore
   await waitForExpect(() => {
     // @ts-ignore
     expect(exited.exitCode).toBe(1)
   })
-  pty.kill()
+
+  pty.dispose()
 })
