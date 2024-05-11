@@ -59,7 +59,7 @@ test('handleWebsocket', async () => {
     jsonrpc: '2.0',
     id: 1,
     method: 'Terminal.create',
-    params: [2, process.cwd(), 'node', ['-e', 'console.log("test")']]
+    params: [2, process.cwd(), process.execPath, ['-e', 'console.log("test")']]
   }))
   const response = await responsePromise
   // @ts-ignore
