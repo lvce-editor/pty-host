@@ -16,27 +16,35 @@ const getHandleMessage = (request) => {
 }
 
 const waitForFirstRequest = async server => {
-  const httpRequest = await new Promise(resolve => {
+  return new Promise<any>(resolve => {
 
+    let webSocket
     const handleUpgrade = (request) => {
-      resolve(request)
+      resolve({
+        httpRequest: request, webSocket
+      })
     }
     server.on('upgrade', handleUpgrade)
     server.listen(3006, () => {
 
       // @ts-ignore
-      const webSocket = new WebSocket('ws://localhost:3006')
+      webSocket = new WebSocket('ws://localhost:3006')
+
     })
   })
-  return httpRequest
 }
 
 test('handleWebsocket', async () => {
   const server = http.createServer()
-  const httpRequest = await waitForFirstRequest(server)
+  const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
+
+  const openPromise = new Promise(resolve => {
+    webSocket.once('open', resolve)
+  })
   // @ts-ignore
   await HandleWebSocket.handleWebSocket(request, httpRequest.socket)
+  await openPromise
   // @ts-ignore
   httpRequest.socket.destroy()
   server.close()
