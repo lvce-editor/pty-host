@@ -92,3 +92,15 @@ test('handleWebsocket', async () => {
   httpRequest.socket.destroy()
   server.close()
 })
+
+test('handleWebsocket - error - request is not defined', async () => {
+  const request = undefined
+  const socket = {}
+  await expect(HandleWebSocket.handleWebSocket(request, socket)).rejects.toThrow(new Error(`expected value to be of type object`))
+})
+
+test('handleWebsocket - error - socket is not defined', async () => {
+  const request = {}
+  const socket = undefined
+  await expect(HandleWebSocket.handleWebSocket(request, socket)).rejects.toThrow(new Error(`expected value to be of type object`))
+})
