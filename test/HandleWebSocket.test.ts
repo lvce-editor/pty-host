@@ -80,7 +80,7 @@ test('handleWebsocket', async () => {
   console.log({
     dara: nextResponse.params[2]
   })
-  const expectedValue = process.platform === 'win32' ? 'test\r\n25h' : {
+  const expectedValue = process.platform === 'win32' ? '\x1B[2J\x1B[m\x1B[Htest\r\n\x1B]0' : {
     type: 'Buffer',
     data: [...Buffer.from('test\r\n')]
   }
