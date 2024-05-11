@@ -60,7 +60,7 @@ test('handleWebsocket', async () => {
     webSocket.addEventListener('open', resolve, { once: true })
   })
   // @ts-ignore
-  await HandleWebSocket.handleWebSocket(request, httpRequest.socket)
+  await HandleWebSocket.handleWebSocket(httpRequest.socket, request)
   await openPromise
   const responsePromise = waitForWebSocketMessage(webSocket)
 
@@ -94,11 +94,11 @@ test('handleWebsocket', async () => {
 test('handleWebsocket - error - request is not defined', async () => {
   const request = undefined
   const socket = {}
-  await expect(HandleWebSocket.handleWebSocket(request, socket)).rejects.toThrow(new Error(`expected value to be of type object`))
+  await expect(HandleWebSocket.handleWebSocket(socket, request,)).rejects.toThrow(new Error(`expected value to be of type object`))
 })
 
 test('handleWebsocket - error - socket is not defined', async () => {
   const request = {}
   const socket = undefined
-  await expect(HandleWebSocket.handleWebSocket(request, socket)).rejects.toThrow(new Error(`expected value to be of type object`))
+  await expect(HandleWebSocket.handleWebSocket(socket, request,)).rejects.toThrow(new Error(`expected value to be of type object`))
 })
