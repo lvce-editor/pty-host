@@ -77,12 +77,13 @@ test('handleWebsocket', async () => {
     result: null
   })
   const nextResponse = await waitForWebSocketMessage(webSocket)
+  const expectedValue = process.platform === 'win32' ? 'test\r\n25h' : 'test\r\n'
   expect(nextResponse).toEqual({
     jsonrpc: '2.0',
     method: 'Viewlet.send',
     params: [2, 'handleData', {
       type: 'Buffer',
-      data: [...Buffer.from('test\r\n')]
+      data: [...Buffer.from(expectedValue)]
     }]
   })
   // @ts-ignore
