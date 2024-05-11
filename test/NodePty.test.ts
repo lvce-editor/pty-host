@@ -2,22 +2,17 @@ import waitForExpect from 'wait-for-expect'
 import * as Pty from '../src/parts/Pty/Pty.js'
 import { test, expect } from '@jest/globals'
 
-let pty
 
-// beforeEach(() => {
-//   pty = Pty.create()
-// })
-
-// afterEach(() => {
-//   Pty.dispose(pty)
-// })
-
-test.skip('pty', async () => {
-  // @ts-ignore
-  if (Platform.isWindows) {
-    // TODO add windows test
+test('pty', async () => {
+  if (process.platform === 'win32') {
     return
   }
+  const pty = Pty.create({
+    cwd: process.cwd(),
+    command: '/bin/bash',
+    args: []
+  })
+
   let allData = ''
   Pty.onData(pty, (data) => {
     allData += data
@@ -27,6 +22,8 @@ test.skip('pty', async () => {
   await waitForExpect(() => {
     expect(allData).toContain('abc')
   })
+
+  pty.kill()
 })
 
 // test.skip('Terminal echo', async () => {
