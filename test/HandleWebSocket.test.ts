@@ -1,7 +1,13 @@
-import { test } from '@jest/globals'
+import { beforeAll, expect, test } from '@jest/globals'
 import * as http from 'node:http'
 import { WebSocket } from 'ws'
+import * as CommandMap from '../src/parts/CommandMap/CommandMap.js'
+import * as CommandState from '../src/parts/CommandState/CommandState.js'
 import * as HandleWebSocket from '../src/parts/HandleWebSocket/HandleWebSocket.js'
+
+beforeAll(() => {
+  CommandState.registerCommands(CommandMap.commandMap)
+})
 
 const getHandleMessage = (request) => {
   return {
@@ -28,7 +34,7 @@ const waitForFirstRequest = async server => {
     server.listen(3006, () => {
 
       // @ts-ignore
-      webSocket = new WebSocket('ws://localhost:3006')
+      webSocket = new WebSocket('ws://localhost:3006',)
 
     })
   })
@@ -45,6 +51,40 @@ test('handleWebsocket', async () => {
   // @ts-ignore
   await HandleWebSocket.handleWebSocket(request, httpRequest.socket)
   await openPromise
+  const responsePromise = new Promise(resolve => {
+    webSocket.once('message', resolve)
+  })
+
+  webSocket.send(JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'Terminal.create',
+    params: [2, process.cwd(), 'node', ['-e', 'console.log("test")']]
+  }))
+  const response = await responsePromise
+  // @ts-ignore
+  const responseString = response.toString()
+  const responseValue = JSON.parse(responseString)
+  expect(responseValue).toEqual({
+    jsonrpc: '2.0',
+    id: 1,
+    result: null
+  })
+  const nextResponsePromise = new Promise(resolve => {
+    webSocket.once('message', resolve)
+  })
+  const nextResponse = await nextResponsePromise
+  // @ts-ignore
+  const nextResponseString = nextResponse.toString()
+  const nextResponseValue = JSON.parse(nextResponseString)
+  expect(nextResponseValue).toEqual({
+    jsonrpc: '2.0',
+    method: 'Viewlet.send',
+    params: [2, 'handleData', {
+      type: 'Buffer',
+      data: [116, 101, 115, 116, 13, 10]
+    }]
+  })
   // @ts-ignore
   httpRequest.socket.destroy()
   server.close()
