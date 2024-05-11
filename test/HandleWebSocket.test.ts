@@ -31,10 +31,11 @@ const waitForFirstRequest = async server => {
       })
     }
     server.on('upgrade', handleUpgrade)
-    server.listen(3006, () => {
+    server.listen(0, () => {
+      const port = server.address().port
 
       // @ts-ignore
-      webSocket = new WebSocket('ws://localhost:3006',)
+      webSocket = new WebSocket(`ws://localhost:${port}`)
 
     })
   })
