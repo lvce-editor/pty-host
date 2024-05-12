@@ -20,7 +20,9 @@ const preparePrettyError = (error) => {
 }
 
 const printPrettyError = (prettyError) => {
-  console.error(`${prettyError.message}\n${prettyError.codeFrame}\n${prettyError.stack}`)
+  console.error(
+    `${prettyError.message}\n${prettyError.codeFrame}\n${prettyError.stack}`,
+  )
 }
 
 export const handleError = (error) => {
@@ -62,7 +64,12 @@ export const handleUncaughtExceptionMonitor = (error, origin) => {
     return
   }
   const prettyError = PrettyError.prepare(error)
-  // @ts-ignore
-  Logger.error(prettyError.codeFrame + Character.NewLine + prettyError.stack + Character.NewLine)
+  Logger.error(
+    // @ts-ignore
+    prettyError.codeFrame +
+      Character.NewLine +
+      prettyError.stack +
+      Character.NewLine,
+  )
   Process.setExitCode(ExitCode.Error)
 }

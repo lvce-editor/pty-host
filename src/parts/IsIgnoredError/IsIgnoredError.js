@@ -6,7 +6,11 @@ export const isIgnoredError = (error) => {
     // parent process is disposed, ignore
     return true
   }
-  if (error && error.code === ErrorCodes.ERR_IPC_CHANNEL_CLOSED && !Process.isConnected()) {
+  if (
+    error &&
+    error.code === ErrorCodes.ERR_IPC_CHANNEL_CLOSED &&
+    !Process.isConnected()
+  ) {
     // parent process is disposed, ignore
     return true
   }
