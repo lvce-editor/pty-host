@@ -9,11 +9,11 @@ test('pty', async () => {
   const pty = Pty.create({
     cwd: process.cwd(),
     command: '/bin/bash',
-    args: []
+    args: [],
   })
 
   let allData = ''
-  pty.addEventListener('data', event => {
+  pty.addEventListener('data', (event) => {
     // @ts-ignore
     allData += event.data
   })
@@ -25,11 +25,8 @@ test('pty', async () => {
     expect(allData).toContain('abc')
   })
 
-
   pty.dispose()
 })
-
-
 
 test('print data', async () => {
   if (process.platform === 'win32') {
@@ -38,11 +35,11 @@ test('print data', async () => {
   const pty = Pty.create({
     cwd: process.cwd(),
     command: process.execPath,
-    args: ['-e', 'console.log("abc")']
+    args: ['-e', 'console.log("abc")'],
   })
 
   let allData = ''
-  pty.addEventListener('data', event => {
+  pty.addEventListener('data', (event) => {
     // @ts-ignore
     allData += event.data
   })
@@ -54,8 +51,6 @@ test('print data', async () => {
   pty.dispose()
 })
 
-
-
 test('handle exec error', async () => {
   if (process.platform === 'win32') {
     return
@@ -63,7 +58,7 @@ test('handle exec error', async () => {
   const pty = Pty.create({
     cwd: process.cwd(),
     command: '/test/does-not-exist',
-    args: []
+    args: [],
   })
 
   let exited = null
