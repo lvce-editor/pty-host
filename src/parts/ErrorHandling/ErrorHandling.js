@@ -64,8 +64,8 @@ export const handleUncaughtExceptionMonitor = (error, origin) => {
     return
   }
   const prettyError = PrettyError.prepare(error)
-  // @ts-ignore
   Logger.error(
+    // @ts-ignore
     prettyError.codeFrame +
       Character.NewLine +
       prettyError.stack +
