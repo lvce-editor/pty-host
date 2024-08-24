@@ -1,11 +1,12 @@
 import * as Callback from '../Callback/Callback.js'
 import * as Command from '../Command/Command.js'
 import * as JsonRpc from '../JsonRpc/JsonRpc.js'
-import * as PrettyError from '../PrettyError/PrettyError.js'
 import * as PrintPrettyError from '../PrintPrettyError/PrintPrettyError.js'
 import * as RequiresSocket from '../RequiresSocket/RequiresSocket.js'
 
-const preparePrettyError = PrettyError.prepare
+const preparePrettyError = (error) => {
+  return error
+}
 
 const logError = (error, prettyError) => {
   PrintPrettyError.printPrettyError(prettyError, `[terminal-process] `)
