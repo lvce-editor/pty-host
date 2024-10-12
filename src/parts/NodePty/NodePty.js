@@ -48,7 +48,11 @@ class Pty extends EventTarget {
   }
 }
 
-// @ts-ignore
+/**
+ *
+ * @param {*} param0
+ * @returns {any}
+ */
 export const create = ({ env = {}, cwd, command, args } = {}) => {
   try {
     Assert.string(cwd)
