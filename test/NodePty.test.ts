@@ -7,6 +7,7 @@ test('pty', async () => {
     return
   }
   const pty = Pty.create({
+    // @ts-ignore
     cwd: process.cwd(),
     command: '/bin/bash',
     args: [],
