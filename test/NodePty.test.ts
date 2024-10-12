@@ -7,6 +7,7 @@ test('pty', async () => {
     return
   }
   const pty = Pty.create({
+    // @ts-ignore
     cwd: process.cwd(),
     command: '/bin/bash',
     args: [],
@@ -33,6 +34,7 @@ test('print data', async () => {
     return
   }
   const pty = Pty.create({
+    // @ts-ignore
     cwd: process.cwd(),
     command: process.execPath,
     args: ['-e', 'console.log("abc")'],
@@ -56,6 +58,7 @@ test('handle exec error', async () => {
     return
   }
   const pty = Pty.create({
+    // @ts-ignore
     cwd: process.cwd(),
     command: '/test/does-not-exist',
     args: [],
