@@ -11,6 +11,7 @@ export const create = (ipc, id, cwd, command, args) => {
   Assert.array(args)
   Assert.object(ipc)
   Debug.debug(`create ${id} ${cwd}`)
+  // @ts-ignore
   const pty = Pty.create({ cwd, command, args })
   const handleData = (event) => {
     ipc.send({
