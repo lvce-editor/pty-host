@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@lvce-editor/ipc": "^11.0.1",
-    "@lvce-editor/json-rpc": "^4.1.0",
+    "@lvce-editor/json-rpc": "^4.2.0",
     "@lvce-editor/pretty-error": "^1.6.0",
     "@lvce-editor/verror": "^1.4.0",
     "debug": "^4.3.7"
@@ -33,7 +33,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/node": "^22.2.0",
-    "execa": "^9.4.0",
+    "execa": "^9.4.1",
     "jest": "^29.7.0",
     "prettier": "^3.3.3",
     "ts-jest": "^29.2.5",
