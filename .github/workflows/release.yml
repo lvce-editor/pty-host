@@ -58,6 +58,7 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
       - run: npm test
       - run: npm run type-check
+      - run: npm run lint
       - run: node scripts/build.js
       - run: npm publish --access public
         if: matrix.os == 'ubuntu-24.04'
