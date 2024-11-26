@@ -4,10 +4,11 @@ import { tmpdir } from 'node:os'
 
 // TODO mock this module when used in unit tests
 
-const state = {
-  /**
-   * @type {Console|undefined}
-   */
+interface State {
+  console: any
+}
+
+const state: State = {
   console: undefined,
 }
 
@@ -20,7 +21,6 @@ const createConsole = () => {
 
 const getOrCreateLogger = (): any => {
   if (!state.console) {
-    // @ts-ignore
     state.console = createConsole()
   }
   return state.console
