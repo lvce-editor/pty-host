@@ -1,5 +1,5 @@
+import * as Command from '../Command/Command.js'
 import * as CommandMap from '../CommandMap/CommandMap.js'
-import * as CommandState from '../CommandState/CommandState.js'
 import * as Listen from '../Listen/Listen.js'
 import * as ProcessListeners from '../ProcessListeners/ProcessListeners.js'
 
@@ -9,6 +9,6 @@ export const main = async () => {
     ProcessListeners.handleUncaughtExceptionMonitor,
   )
   process.on('disconnect', ProcessListeners.handleDisconnect)
-  CommandState.registerCommands(CommandMap.commandMap)
+  Command.register(CommandMap.commandMap)
   await Listen.listen()
 }
