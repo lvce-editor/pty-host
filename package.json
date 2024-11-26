@@ -2,7 +2,7 @@
   "name": "@lvce-editor/pty-host",
   "version": "0.0.0-dev",
   "description": "",
-  "main": "src/ptyHostMain.js",
+  "main": "src/ptyHostMain.ts",
   "bin": "bin/ptyHost.js",
   "type": "module",
   "scripts": {
