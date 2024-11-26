@@ -24,7 +24,8 @@ export default tseslint.config(
       'src/index.d.ts',
       'rollup.config.js',
       'eslint.config.js',
-      'packages/text-search-worker/src/textSearchWorkerMain.ts',
+      'src/ptyHostMain.ts',
+      '@typescript-eslint/explicit-function-return-type',
     ],
   },
   {
