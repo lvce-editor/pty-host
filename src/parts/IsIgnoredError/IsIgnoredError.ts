@@ -1,5 +1,5 @@
-import * as ErrorCodes from '../ErrorCodes/ErrorCodes.js'
-import * as Process from '../Process/Process.js'
+import * as ErrorCodes from '../ErrorCodes/ErrorCodes.ts'
+import * as Process from '../Process/Process.ts'
 
 export const isIgnoredError = (error) => {
   if (error && error.code === ErrorCodes.EPIPE && !process.connected) {

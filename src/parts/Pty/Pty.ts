@@ -1,1 +1,1 @@
-export * from '../NodePty/NodePty.js'
+export * from '../NodePty/NodePty.ts'

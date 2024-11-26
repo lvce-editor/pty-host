@@ -1,6 +1,6 @@
 import { spawn } from 'node-pty'
-import { VError } from '../VError/VError.js'
-import * as Assert from '../Assert/Assert.js'
+import { VError } from '../VError/VError.ts'
+import * as Assert from '../Assert/Assert.ts'
 
 class DataEvent extends Event {
   data: any

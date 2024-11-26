@@ -1,6 +1,6 @@
-import * as ErrorHandling from '../ErrorHandling/ErrorHandling.js'
-import * as ExitCode from '../ExitCode/ExitCode.js'
-import * as Process from '../Process/Process.js'
+import * as ErrorHandling from '../ErrorHandling/ErrorHandling.ts'
+import * as ExitCode from '../ExitCode/ExitCode.ts'
+import * as Process from '../Process/Process.ts'
 
 export const handleDisconnect = () => {
   console.info('[pty host] disconnected')
