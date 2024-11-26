@@ -59,7 +59,7 @@ jobs:
       - run: npm test
       - run: npm run type-check
       - run: npm run lint
-      - run: node scripts/build.js
+      - run: npm run build
       - run: npm publish --access public
         if: matrix.os == 'ubuntu-24.04'
         working-directory: ./dist
