@@ -25,7 +25,7 @@ export default tseslint.config(
       'rollup.config.js',
       'eslint.config.js',
       'src/ptyHostMain.ts',
-      'bin/ptyHostMain.js',
+      'bin/ptyHost.js',
     ],
   },
   {
