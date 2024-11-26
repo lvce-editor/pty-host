@@ -7,11 +7,6 @@ export const handleDisconnect = () => {
   Process.exit(ExitCode.Success)
 }
 
-export const handleSigTerm = () => {
-  console.info('[pty host] sigterm')
-  Process.exit(ExitCode.Success)
-}
-
 export const handleUncaughtExceptionMonitor = (error) => {
   // @ts-ignore
   ErrorHandling.handleUncaughtExceptionMonitor(error)
