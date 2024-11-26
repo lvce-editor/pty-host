@@ -1,11 +1,11 @@
 import { beforeAll, expect, test } from '@jest/globals'
 import * as http from 'node:http'
+import * as Command from '../src/parts/Command/Command.js'
 import * as CommandMap from '../src/parts/CommandMap/CommandMap.js'
-import * as CommandState from '../src/parts/CommandState/CommandState.js'
 import * as HandleWebSocket from '../src/parts/HandleWebSocket/HandleWebSocket.js'
 
 beforeAll(() => {
-  CommandState.registerCommands(CommandMap.commandMap)
+  Command.register(CommandMap.commandMap)
 })
 
 const getHandleMessage = (request) => {
