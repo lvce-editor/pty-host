@@ -25,7 +25,7 @@ export default tseslint.config(
       'rollup.config.js',
       'eslint.config.js',
       'src/ptyHostMain.ts',
-      '@typescript-eslint/explicit-function-return-type',
+      'bin/ptyHostMain.js',
     ],
   },
   {
@@ -46,6 +46,7 @@ export default tseslint.config(
       'no-case-declarations': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   },
 )
