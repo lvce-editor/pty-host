@@ -7,7 +7,7 @@ const preparePrettyError = (error) => {
   return error
 }
 
-const logError = (error) => {
+const logError = () => {
   // PrintPrettyError.printPrettyError(prettyError, `[terminal-process] `)
 }
 
