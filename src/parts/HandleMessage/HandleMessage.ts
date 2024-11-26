@@ -1,7 +1,7 @@
-import * as Callback from '../Callback/Callback.js'
-import * as Command from '../Command/Command.js'
-import * as JsonRpc from '../JsonRpc/JsonRpc.js'
-import * as RequiresSocket from '../RequiresSocket/RequiresSocket.js'
+import * as Callback from '../Callback/Callback.ts'
+import * as Command from '../Command/Command.ts'
+import * as JsonRpc from '../JsonRpc/JsonRpc.ts'
+import * as RequiresSocket from '../RequiresSocket/RequiresSocket.ts'
 
 const preparePrettyError = (error) => {
   return error

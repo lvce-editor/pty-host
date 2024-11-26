@@ -5,7 +5,7 @@ import {
   IpcChildWithNodeWorker,
   IpcChildWithWebSocket,
 } from '@lvce-editor/ipc'
-import * as IpcChildType from '../IpcChildType/IpcChildType.js'
+import * as IpcChildType from '../IpcChildType/IpcChildType.ts'
 
 export const getModule = (method) => {
   switch (method) {

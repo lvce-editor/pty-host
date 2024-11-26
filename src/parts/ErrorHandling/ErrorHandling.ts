@@ -1,10 +1,10 @@
-import * as Character from '../Character/Character.js'
-import * as ExitCode from '../ExitCode/ExitCode.js'
-import * as GetNewLineIndex from '../GetNewLineIndex/GetNewLineIndex.js'
-import * as IsIgnoredError from '../IsIgnoredError/IsIgnoredError.js'
-import * as Logger from '../Logger/Logger.js'
-import * as PrettyError from '../PrettyError/PrettyError.js'
-import * as Process from '../Process/Process.js'
+import * as Character from '../Character/Character.ts'
+import * as ExitCode from '../ExitCode/ExitCode.ts'
+import * as GetNewLineIndex from '../GetNewLineIndex/GetNewLineIndex.ts'
+import * as IsIgnoredError from '../IsIgnoredError/IsIgnoredError.ts'
+import * as Logger from '../Logger/Logger.ts'
+import * as PrettyError from '../PrettyError/PrettyError.ts'
+import * as Process from '../Process/Process.ts'
 
 export const state = {
   seenErrors: [],

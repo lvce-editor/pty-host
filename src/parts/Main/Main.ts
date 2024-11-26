@@ -1,7 +1,7 @@
-import * as Command from '../Command/Command.js'
-import * as CommandMap from '../CommandMap/CommandMap.js'
-import * as Listen from '../Listen/Listen.js'
-import * as ProcessListeners from '../ProcessListeners/ProcessListeners.js'
+import * as Command from '../Command/Command.ts'
+import * as CommandMap from '../CommandMap/CommandMap.ts'
+import * as Listen from '../Listen/Listen.ts'
+import * as ProcessListeners from '../ProcessListeners/ProcessListeners.ts'
 
 export const main = async () => {
   process.on(

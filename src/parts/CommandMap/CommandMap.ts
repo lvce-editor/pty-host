@@ -1,8 +1,8 @@
-import * as HandleElectronMessagePort from '../HandleElectronMessagePort/HandleElectronMessagePort.js'
-import * as HandleNodeMessagePort from '../HandleNodeMessagePort/HandleNodeMessagePort.js'
-import * as HandleWebSocket from '../HandleWebSocket/HandleWebSocket.js'
-import * as PtyController from '../PtyController/PtyController.js'
-import * as TerminalProcessCommandType from '../TerminalProcessCommandType/TerminalProcessCommandType.js'
+import * as HandleElectronMessagePort from '../HandleElectronMessagePort/HandleElectronMessagePort.ts'
+import * as HandleNodeMessagePort from '../HandleNodeMessagePort/HandleNodeMessagePort.ts'
+import * as HandleWebSocket from '../HandleWebSocket/HandleWebSocket.ts'
+import * as PtyController from '../PtyController/PtyController.ts'
+import * as TerminalProcessCommandType from '../TerminalProcessCommandType/TerminalProcessCommandType.ts'
 
 export const commandMap = {
   [TerminalProcessCommandType.HandleElectronMessagePort]:
