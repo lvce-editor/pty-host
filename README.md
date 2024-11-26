@@ -1,1 +1,3 @@
-# pty-host
+# Pty Host
+
+Terminal process used in Lvce Editor.
