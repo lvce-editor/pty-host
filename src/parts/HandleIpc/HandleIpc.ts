@@ -1,5 +1,5 @@
-import * as Assert from '../Assert/Assert.js'
-import * as HandleMessage from '../HandleMessage/HandleMessage.js'
+import * as Assert from '../Assert/Assert.ts'
+import * as HandleMessage from '../HandleMessage/HandleMessage.ts'
 
 export const handleIpc = (ipc) => {
   Assert.object(ipc)
