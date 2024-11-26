@@ -1,1 +1,1 @@
-export { prepare, prepareJsonError } from '@lvce-editor/pretty-error'
+export { prepare,  } from '@lvce-editor/pretty-error'
