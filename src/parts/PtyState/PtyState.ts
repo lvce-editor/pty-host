@@ -1,4 +1,4 @@
-export const state = {
+const state = {
   ptyMap: Object.create(null),
 }
 
