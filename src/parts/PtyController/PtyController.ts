@@ -1,7 +1,7 @@
-import * as Assert from '../Assert/Assert.js'
-import * as Debug from '../Debug/Debug.js'
-import * as Pty from '../Pty/Pty.js'
-import * as PtyState from '../PtyState/PtyState.js'
+import * as Assert from '../Assert/Assert.ts'
+import * as Debug from '../Debug/Debug.ts'
+import * as Pty from '../Pty/Pty.ts'
+import * as PtyState from '../PtyState/PtyState.ts'
 
 // TODO maybe merge pty and pty controller
 export const create = (ipc, id, cwd, command, args) => {
