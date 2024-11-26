@@ -1,7 +1,7 @@
 import * as IpcChildModule from '../IpcChildModule/IpcChildModule.ts'
 
 export const listen = async ({ method, ...params }) => {
-  const module = await IpcChildModule.getModule(method)
+  const module = IpcChildModule.getModule(method)
   // @ts-ignore
   const rawIpc = await module.listen(params)
   // @ts-ignore
