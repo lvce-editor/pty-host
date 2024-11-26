@@ -3,6 +3,7 @@ import { VError } from '../VError/VError.js'
 import * as Assert from '../Assert/Assert.js'
 
 class DataEvent extends Event {
+  data: any
   constructor(data) {
     super('data')
     this.data = data
@@ -10,6 +11,7 @@ class DataEvent extends Event {
 }
 
 class ExitEvent extends Event {
+  data: any
   constructor(data) {
     super('exit')
     this.data = data
@@ -17,6 +19,7 @@ class ExitEvent extends Event {
 }
 
 class Pty extends EventTarget {
+  pty: any
   /**
    *
    * @param {import('node-pty').IPty} pty
@@ -53,7 +56,7 @@ class Pty extends EventTarget {
  * @param {*} param0
  * @returns {any}
  */
-export const create = ({ env = {}, cwd, command, args } = {}) => {
+export const create = ({ env = {}, cwd, command, args }: any = {}) => {
   try {
     Assert.string(cwd)
     Assert.string(command)

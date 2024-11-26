@@ -13,5 +13,6 @@ export const handleSigTerm = () => {
 }
 
 export const handleUncaughtExceptionMonitor = (error) => {
+  // @ts-ignore
   ErrorHandling.handleUncaughtExceptionMonitor(error)
 }

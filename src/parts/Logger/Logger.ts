@@ -18,8 +18,9 @@ const createConsole = () => {
   return logger
 }
 
-const getOrCreateLogger = () => {
+const getOrCreateLogger = (): any => {
   if (!state.console) {
+    // @ts-ignore
     state.console = createConsole()
   }
   return state.console

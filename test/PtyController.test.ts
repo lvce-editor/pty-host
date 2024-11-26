@@ -11,6 +11,7 @@ test.skip('create', () => {
     // TODO add windows test
     return
   }
+  // @ts-ignore
   PtyController.create(1)
 })
 
@@ -20,7 +21,9 @@ test.skip('dispose', () => {
     // TODO add windows test
     return
   }
+  // @ts-ignore
   PtyController.create(1)
+  // @ts-ignore
   PtyController.create(2)
   // @ts-ignore
   expect(PtyController.state.ptyMap[1]).toBeDefined()
