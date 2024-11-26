@@ -81,6 +81,7 @@ delete packageJson.scripts
 delete packageJson.devDependencies
 delete packageJson.prettier
 delete packageJson.jest
+delete packageJson.xo
 packageJson.version = version
 packageJson.main = 'dist/ptyHostMain.js'
 
