@@ -56,7 +56,7 @@ class Pty extends EventTarget {
  * @param {*} param0
  * @returns {any}
  */
-export const create = ({ env = {}, cwd, command, args }: any = {}) => {
+export const create = ({ cwd, command, args }: any = {}) => {
   try {
     Assert.string(cwd)
     Assert.string(command)
