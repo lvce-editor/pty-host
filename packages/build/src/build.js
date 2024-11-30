@@ -16,11 +16,18 @@ const writeJson = async (path, json) => {
 }
 
 const getGitTagFromGit = async () => {
-  const { stdout, stderr, exitCode } = await execa('git', ['describe', '--exact-match', '--tags'], {
-    reject: false,
-  })
+  const { stdout, stderr, exitCode } = await execa(
+    'git',
+    ['describe', '--exact-match', '--tags'],
+    {
+      reject: false,
+    },
+  )
   if (exitCode) {
-    if (exitCode === 128 && stderr.startsWith('fatal: no tag exactly matches')) {
+    if (
+      exitCode === 128 &&
+      stderr.startsWith('fatal: no tag exactly matches')
+    ) {
       return '0.0.0-dev'
     }
     return '0.0.0-dev'
@@ -56,7 +63,9 @@ await bundleJs()
 
 const version = await getVersion()
 
-const packageJson = await readJson(join(root, 'packages', 'text-search-worker', 'package.json'))
+const packageJson = await readJson(
+  join(root, 'packages', 'pty-host', 'package.json'),
+)
 
 delete packageJson.scripts
 delete packageJson.devDependencies
@@ -66,7 +75,7 @@ delete packageJson.xo
 delete packageJson.directories
 delete packageJson.nodemonConfig
 packageJson.version = version
-packageJson.main = 'dist/textSearchWorkerMain.js'
+packageJson.main = 'dist/ptyHostMain.js'
 
 await writeJson(join(dist, 'package.json'), packageJson)
 
