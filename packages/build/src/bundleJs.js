@@ -28,6 +28,7 @@ const options = {
     '@lvce-editor/json-rpc',
     '@lvce-editor/verror',
     '@lvce-editor/command',
+    '@lvce-editor/pretty-error',
     'node-pty',
     'debug',
   ],
