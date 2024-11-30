@@ -27,6 +27,8 @@ const options = {
     '@lvce-editor/ipc',
     '@lvce-editor/json-rpc',
     '@lvce-editor/verror',
+    'node-pty',
+    'debug',
   ],
   plugins: [
     babel({
