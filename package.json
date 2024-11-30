@@ -1,16 +1,16 @@
 {
-  "name": "@lvce-editor/pty-host",
+  "name": "@lvce-editor/pty-host-monorepo",
   "version": "0.0.0-dev",
   "description": "",
   "main": "src/ptyHostMain.ts",
   "bin": "bin/ptyHost.js",
   "type": "module",
   "scripts": {
-    "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
-    "test:watch": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch",
-    "type-check": "tsc",
+    "postinstall": "lerna bootstrap --ci",
     "lint": "eslint .",
-    "build": "node scripts/build.js"
+    "test": "lerna run test",
+    "type-check": "tsc -b",
+    "build": "node packages/build/src/build.js"
   },
   "keywords": [
     "lvce-editor",
@@ -25,34 +25,15 @@
   "engines": {
     "node": ">=18"
   },
-  "dependencies": {
-    "@lvce-editor/assert": "^1.3.0",
-    "@lvce-editor/command": "^1.2.0",
-    "@lvce-editor/ipc": "^11.3.0",
-    "@lvce-editor/json-rpc": "^5.2.0",
-    "@lvce-editor/pretty-error": "^1.6.0",
-    "@lvce-editor/verror": "^1.6.0",
-    "debug": "^4.3.7"
-  },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.26.0",
     "@eslint/js": "^9.16.0",
-    "@jest/globals": "^29.7.0",
-    "@rollup/plugin-babel": "^6.0.4",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.2.0",
     "eslint": "^9.16.0",
-    "execa": "^9.5.1",
-    "jest": "^29.7.0",
     "prettier": "^3.4.1",
-    "rollup": "^4.27.4",
-    "ts-jest": "^29.2.5",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.16.0",
-    "wait-for-expect": "^3.0.2"
-  },
-  "optionalDependencies": {
-    "node-pty": "^1.1.0-beta20"
+    "@lerna/legacy-package-management": "^8.1.9",
+    "lerna": "^8.1.9"
   },
   "xo": {
     "rules": {
