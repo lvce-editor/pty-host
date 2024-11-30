@@ -81,3 +81,14 @@ await writeJson(join(dist, 'package.json'), packageJson)
 
 await cp(join(root, 'README.md'), join(dist, 'README.md'))
 await cp(join(root, 'LICENSE'), join(dist, 'LICENSE'))
+
+await cp(join(root, 'bin'), join(root, '.tmp', 'dist', 'bin'), {
+  recursive: true,
+})
+
+const oldContent = await readFile(join(root, 'bin', 'ptyHost.js'), 'utf8')
+const newContent = oldContent.replace(
+  'src/ptyHostMain.js',
+  'dist/ptyHostMain.js',
+)
+await writeFile(join(root, '.tmp', 'dist', 'bin', 'ptyHost.js'), newContent)
