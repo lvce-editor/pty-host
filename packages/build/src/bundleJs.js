@@ -23,6 +23,11 @@ const options = {
       objectShorthand: true,
     },
   },
+  external: [
+    '@lvce-editor/ipc',
+    '@lvce-editor/json-rpc',
+    '@lvce-editor/verror',
+  ],
   plugins: [
     babel({
       babelHelpers: 'bundled',
