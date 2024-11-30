@@ -27,6 +27,7 @@ const options = {
     '@lvce-editor/ipc',
     '@lvce-editor/json-rpc',
     '@lvce-editor/verror',
+    '@lvce-editor/command',
     'node-pty',
     'debug',
   ],
