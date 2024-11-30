@@ -20,7 +20,7 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Compute node modules cache key
         id: nodeModulesCacheKey
-        run: echo "value=$(node scripts/computeNodeModulesCacheKey.js)" >> $GITHUB_OUTPUT
+        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.js)" >> $GITHUB_OUTPUT
         shell: bash
       - uses: actions/cache@v4
         id: npm-cache
@@ -28,10 +28,9 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
       - name: npm ci
-        run: npm ci
+        run: npm ci --ignore-scripts && npm run postinstall
         if: steps.npm-cache.outputs.cache-hit != 'true'
+      - run: npm run build
       - run: npm test
       - run: npm run type-check
       - run: npm run lint
-      - name: Build
-        run: npm run build
