@@ -1,11 +1,10 @@
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import path, { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { execa } from 'execa'
+import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { bundleJs } from './bundleJs.js'
+import { root } from './root.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const root = path.join(__dirname, '..')
-const dist = join(root, 'dist')
+const dist = join(root, '.tmp', 'dist')
 
 const readJson = async (path) => {
   const content = await readFile(path, 'utf8')
@@ -60,9 +59,30 @@ const getVersion = async () => {
 await rm(dist, { recursive: true, force: true })
 await mkdir(dist, { recursive: true })
 
-await execa(`npx`, ['rollup', '-c'])
+await bundleJs()
 
-await cp(join(root, 'bin'), join(root, 'dist', 'bin'), {
+const version = await getVersion()
+
+const packageJson = await readJson(
+  join(root, 'packages', 'pty-host', 'package.json'),
+)
+
+delete packageJson.scripts
+delete packageJson.devDependencies
+delete packageJson.prettier
+delete packageJson.jest
+delete packageJson.xo
+delete packageJson.directories
+delete packageJson.nodemonConfig
+packageJson.version = version
+packageJson.main = 'dist/ptyHostMain.js'
+
+await writeJson(join(dist, 'package.json'), packageJson)
+
+await cp(join(root, 'README.md'), join(dist, 'README.md'))
+await cp(join(root, 'LICENSE'), join(dist, 'LICENSE'))
+
+await cp(join(root, 'bin'), join(root, '.tmp', 'dist', 'bin'), {
   recursive: true,
 })
 
@@ -71,21 +91,4 @@ const newContent = oldContent.replace(
   'src/ptyHostMain.js',
   'dist/ptyHostMain.js',
 )
-await writeFile(join(root, 'dist', 'bin', 'ptyHost.js'), newContent)
-
-const version = await getVersion()
-
-const packageJson = await readJson(join(root, 'package.json'))
-
-delete packageJson.scripts
-delete packageJson.devDependencies
-delete packageJson.prettier
-delete packageJson.jest
-delete packageJson.xo
-packageJson.version = version
-packageJson.main = 'dist/ptyHostMain.js'
-
-await writeJson(join(dist, 'package.json'), packageJson)
-
-await cp(join(root, 'README.md'), join(dist, 'README.md'))
-await cp(join(root, 'LICENSE'), join(dist, 'LICENSE'))
+await writeFile(join(root, '.tmp', 'dist', 'bin', 'ptyHost.js'), newContent)
