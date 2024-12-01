@@ -20,6 +20,8 @@ export default tseslint.config(
       '**/coverage/**',
       '**/server/**',
       '**/e2e/**',
+      '**/test-integration/**',
+      '**/test-integration-util/**',
       'src/index.d.ts',
       'rollup.config.js',
       'eslint.config.js',

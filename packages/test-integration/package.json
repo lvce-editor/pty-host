@@ -1,0 +1,16 @@
+{
+  "name": "@lvce-editor/pty-host-integration",
+  "version": "0.0.0-dev",
+  "type": "module",
+  "main": "",
+  "scripts": {
+    "#test": "node src/test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.9.0"
+  }
+}
