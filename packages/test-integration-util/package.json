@@ -1,0 +1,11 @@
+{
+  "name": "test-integration-util",
+  "type": "module",
+  "version": "0.0.0-dev",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {}
+}
