@@ -4,7 +4,7 @@
   "type": "module",
   "main": "",
   "scripts": {
-    "test": "node src/test.js"
+    "#test": "node src/test.js"
   },
   "keywords": [],
   "author": "",

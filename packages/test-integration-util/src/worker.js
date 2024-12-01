@@ -1,22 +1,6 @@
 import { IpcChildWithNodeWorker } from '@lvce-editor/ipc'
 
 const createWorkerIpc = async (workerPath) => {
-  // @ts-ignore`
-  globalThis.WorkerGlobalScope = {}
-
-  // @ts-ignore
-  globalThis.OffscreenCanvas = class {
-    getContext() {
-      return {
-        measureText() {
-          return {
-            width: 2,
-          }
-        },
-      }
-    }
-  }
-
   const readyPromise = new Promise((resolve) => {
     globalThis.postMessage = (message) => {
       if (message === 'ready') {

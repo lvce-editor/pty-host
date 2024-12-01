@@ -28,13 +28,6 @@ const createWrappedRpc = (rpc) => {
 export const setup = async () => {
   const commandMap = {}
   const rpc = await createWorker(workerPath, commandMap)
-  const syntaxHighlightingEnabled = true
-  const syncIncremental = true
-  await rpc.invoke(
-    'Initialize.initialize',
-    syntaxHighlightingEnabled,
-    syncIncremental,
-  )
   const wrapped = createWrappedRpc(rpc)
   return wrapped
 }
