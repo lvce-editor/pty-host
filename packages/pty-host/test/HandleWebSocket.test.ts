@@ -54,12 +54,10 @@ test('handleWebsocket', async () => {
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
-  const openPromise = new Promise((resolve) => {
-    webSocket.addEventListener('open', resolve, { once: true })
-  })
-  // @ts-ignore
+  const { resolve, promise } = Promise.withResolvers()
+  webSocket.addEventListener('open', resolve, { once: true })
   await HandleWebSocket.handleWebSocket(httpRequest.socket, request)
-  await openPromise
+  await promise
   const responsePromise = waitForWebSocketMessage(webSocket)
 
   webSocket.send(
