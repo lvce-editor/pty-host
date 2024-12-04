@@ -21,7 +21,7 @@ const getHandleMessage = (request) => {
 }
 
 const waitForFirstRequest = async (server) => {
-  const { resolve, promise } = Promise.withResolvers()
+  const { resolve, promise } = Promise.withResolvers<any>()
   let webSocket
   const handleUpgrade = (request) => {
     resolve({
@@ -36,7 +36,7 @@ const waitForFirstRequest = async (server) => {
     // @ts-ignore
     webSocket = new WebSocket(`ws://localhost:${port}`)
   })
-  await promise
+  return promise
 }
 
 const waitForWebSocketMessage = async (webSocket: any) => {
