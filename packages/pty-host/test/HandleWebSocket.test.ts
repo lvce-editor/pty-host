@@ -21,22 +21,22 @@ const getHandleMessage = (request) => {
 }
 
 const waitForFirstRequest = async (server) => {
-  return new Promise<any>((resolve) => {
-    let webSocket
-    const handleUpgrade = (request) => {
-      resolve({
-        httpRequest: request,
-        webSocket,
-      })
-    }
-    server.on('upgrade', handleUpgrade)
-    server.listen(0, () => {
-      const port = server.address().port
-
-      // @ts-ignore
-      webSocket = new WebSocket(`ws://localhost:${port}`)
+  const { resolve, promise } = Promise.withResolvers()
+  let webSocket
+  const handleUpgrade = (request) => {
+    resolve({
+      httpRequest: request,
+      webSocket,
     })
+  }
+  server.on('upgrade', handleUpgrade)
+  server.listen(0, () => {
+    const port = server.address().port
+
+    // @ts-ignore
+    webSocket = new WebSocket(`ws://localhost:${port}`)
   })
+  await promise
 }
 
 const waitForWebSocketMessage = async (webSocket: any) => {
