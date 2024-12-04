@@ -21,22 +21,22 @@ const getHandleMessage = (request) => {
 }
 
 const waitForFirstRequest = async (server) => {
-  return new Promise<any>((resolve) => {
-    let webSocket
-    const handleUpgrade = (request) => {
-      resolve({
-        httpRequest: request,
-        webSocket,
-      })
-    }
-    server.on('upgrade', handleUpgrade)
-    server.listen(0, () => {
-      const port = server.address().port
-
-      // @ts-ignore
-      webSocket = new WebSocket(`ws://localhost:${port}`)
+  const { resolve, promise } = Promise.withResolvers<any>()
+  let webSocket
+  const handleUpgrade = (request) => {
+    resolve({
+      httpRequest: request,
+      webSocket,
     })
+  }
+  server.on('upgrade', handleUpgrade)
+  server.listen(0, () => {
+    const port = server.address().port
+
+    // @ts-ignore
+    webSocket = new WebSocket(`ws://localhost:${port}`)
   })
+  return promise
 }
 
 const waitForWebSocketMessage = async (webSocket: any) => {
@@ -54,12 +54,10 @@ test('handleWebsocket', async () => {
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
-  const openPromise = new Promise((resolve) => {
-    webSocket.addEventListener('open', resolve, { once: true })
-  })
-  // @ts-ignore
+  const { resolve, promise } = Promise.withResolvers()
+  webSocket.addEventListener('open', resolve, { once: true })
   await HandleWebSocket.handleWebSocket(httpRequest.socket, request)
-  await openPromise
+  await promise
   const responsePromise = waitForWebSocketMessage(webSocket)
 
   webSocket.send(
