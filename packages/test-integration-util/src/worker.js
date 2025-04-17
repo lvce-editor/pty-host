@@ -44,6 +44,7 @@ const handleMessage = async (event) => {
 }
 
 const main = async () => {
+  // @ts-ignore
   const rawIpc = await IpcChildWithNodeWorker.listen()
   // @ts-ignore
   IpcChildWithNodeWorker.signal(rawIpc)
