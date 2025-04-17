@@ -2,22 +2,39 @@
   "name": "@lvce-editor/pty-host",
   "version": "0.0.0-dev",
   "description": "",
-  "main": "src/ptyHostMain.ts",
-  "bin": "bin/ptyHost.js",
-  "type": "module",
-  "scripts": {
-    "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
-    "test:watch": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch"
-  },
   "keywords": [
     "lvce-editor",
     "pty-host"
   ],
-  "author": "Lvce Editor",
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/lvce-editor/pty-host.git"
+  },
+  "license": "MIT",
+  "author": "Lvce Editor",
+  "type": "module",
+  "main": "src/ptyHostMain.ts",
+  "bin": "bin/ptyHost.js",
+  "scripts": {
+    "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
+    "test:watch": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --watch"
+  },
+  "jest": {
+    "injectGlobals": false,
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
   },
   "dependencies": {
     "@lvce-editor/assert": "^1.3.0",
@@ -38,22 +55,5 @@
   },
   "optionalDependencies": {
     "node-pty": "^1.1.0-beta27"
-  },
-  "jest": {
-    "injectGlobals": false,
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "transform": {
-      "^.+\\.tsx?$": [
-        "ts-jest",
-        {
-          "useESM": true
-        }
-      ]
-    }
   }
 }
