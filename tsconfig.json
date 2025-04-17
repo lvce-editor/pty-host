@@ -7,6 +7,15 @@
     },
     {
       "path": "./packages/build"
+    },
+    {
+      "path": "./packages/test-integration-util"
+    },
+    {
+      "path": "./packages/test-integration"
+    },
+    {
+      "path": "./packages/memory"
     }
   ]
 }
