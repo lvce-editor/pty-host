@@ -16,8 +16,7 @@ const firstErrorLine = (error) => {
   return `${error}`
 }
 
-// @ts-ignore
-export const handleUncaughtExceptionMonitor = (error) => {
+export const handleUncaughtExceptionMonitor = (error: any): void => {
   Logger.info(`[pty host] uncaught exception: ${firstErrorLine(error)}`)
   if (IsIgnoredError.isIgnoredError(error)) {
     return

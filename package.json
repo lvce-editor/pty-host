@@ -2,98 +2,42 @@
   "name": "@lvce-editor/pty-host-monorepo",
   "version": "0.0.0-dev",
   "description": "",
-  "main": "src/ptyHostMain.ts",
-  "bin": "bin/ptyHost.js",
-  "type": "module",
-  "scripts": {
-    "postinstall": "lerna bootstrap --ci",
-    "lint": "eslint .",
-    "test": "lerna run test",
-    "type-check": "tsc -b",
-    "build": "node packages/build/src/build.js"
-  },
   "keywords": [
     "lvce-editor",
     "pty-host"
   ],
-  "author": "Lvce Editor",
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/lvce-editor/pty-host.git"
   },
-  "engines": {
-    "node": ">=18"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.24.0",
-    "@types/eslint__js": "^9.14.0",
-    "eslint": "^9.24.0",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.30.1",
-    "@lerna/legacy-package-management": "^8.2.2",
-    "lerna": "^8.2.2"
-  },
-  "xo": {
-    "rules": {
-      "unicorn/filename-case": "off",
-      "indent": "off",
-      "semi": "off",
-      "no-unused-vars": "off",
-      "unicorn/numeric-separators-style": "off",
-      "no-extra-semi": "off",
-      "arrow-body-style": "off",
-      "padded-blocks": "off",
-      "capitalized-comments": "off",
-      "padding-line-between-statements": "off",
-      "arrow-parens": "off",
-      "no-warning-comments": "off",
-      "array-bracket-spacing": "off",
-      "comma-spacing": "off",
-      "unicorn/no-array-callback-reference": "off",
-      "comma-dangle": "off",
-      "operator-linebreak": "off",
-      "no-case-declarations": "off",
-      "no-undef": "off",
-      "object-curly-spacing": "off",
-      "object-shorthand": "off",
-      "complexity": "off",
-      "no-labels": "off",
-      "no-multi-assign": "off",
-      "max-params": "off",
-      "no-bitwise": "off",
-      "unicorn/prefer-math-trunc": "off",
-      "no-await-in-loop": "off",
-      "unicorn/prefer-add-event-listener": "off",
-      "no-unused-expressions": "off",
-      "node/prefer-global/process": "off",
-      "unicorn/no-for-loop": "off",
-      "unicorn/prevent-abbreviations": "off"
-    },
-    "ignores": [
-      "distmin"
-    ]
-  },
-  "jest": {
-    "injectGlobals": false,
-    "extensionsToTreatAsEsm": [
-      ".ts"
-    ],
-    "moduleNameMapper": {
-      "^(\\.{1,2}/.*)\\.js$": "$1"
-    },
-    "transform": {
-      "^.+\\.tsx?$": [
-        "ts-jest",
-        {
-          "useESM": true
-        }
-      ]
-    }
+  "license": "MIT",
+  "author": "Lvce Editor",
+  "type": "module",
+  "main": "src/ptyHostMain.ts",
+  "bin": "bin/ptyHost.js",
+  "scripts": {
+    "build": "node packages/build/src/build.js",
+    "lint": "eslint .",
+    "postinstall": "lerna bootstrap --ci",
+    "test": "lerna run test",
+    "type-check": "tsc -b"
   },
   "prettier": {
     "semi": false,
     "singleQuote": true
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@lerna/legacy-package-management": "^8.2.2",
+    "@lvce-editor/eslint-config": "^1.38.0",
+    "@types/eslint__js": "^9.14.0",
+    "eslint": "^9.24.0",
+    "lerna": "^8.2.2",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

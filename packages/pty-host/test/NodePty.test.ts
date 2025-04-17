@@ -1,6 +1,6 @@
+import { test, expect } from '@jest/globals'
 import waitForExpect from 'wait-for-expect'
 import * as Pty from '../src/parts/Pty/Pty.js'
-import { test, expect } from '@jest/globals'
 
 test('pty', async () => {
   if (process.platform === 'win32') {
