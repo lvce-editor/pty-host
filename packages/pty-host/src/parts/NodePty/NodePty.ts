@@ -1,22 +1,8 @@
 import { spawn } from 'node-pty'
-import { VError } from '../VError/VError.ts'
 import * as Assert from '../Assert/Assert.ts'
-
-class DataEvent extends Event {
-  data: any
-  constructor(data) {
-    super('data')
-    this.data = data
-  }
-}
-
-class ExitEvent extends Event {
-  data: any
-  constructor(data) {
-    super('exit')
-    this.data = data
-  }
-}
+import { DataEvent } from '../DataEvent/DataEvent.ts'
+import { ExitEvent } from '../ExitEvent/ExitEvent.ts'
+import { VError } from '../VError/VError.ts'
 
 class Pty extends EventTarget {
   pty: any
