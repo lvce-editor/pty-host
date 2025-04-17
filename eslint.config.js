@@ -1,55 +1,26 @@
-import eslint from '@eslint/js'
-import tseslint from 'typescript-eslint'
+import * as config from '@lvce-editor/eslint-config'
 
-export default tseslint.config(
-  eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  {
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
-  },
-  {
-    ignores: [
-      'dist',
-      '.tmp',
-      '**/build/**',
-      '**/coverage/**',
-      '**/server/**',
-      '**/e2e/**',
-      '**/test-integration/**',
-      '**/test-integration-util/**',
-      'src/index.d.ts',
-      'rollup.config.js',
-      'eslint.config.js',
-      'packages/pty-host/src/ptyHostMain.ts',
-      'bin/ptyHost.js',
-    ],
-  },
+export default [
+  ...config.default,
   {
     rules: {
-      '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/consistent-type-exports': 'error',
-      '@typescript-eslint/consistent-type-imports': 'error',
-    },
-  },
-  {
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-dynamic-delete': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      'no-case-declarations': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/restrict-template-expressions': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off',
       '@typescript-eslint/restrict-plus-operands': 'off',
-      '@typescript-eslint/no-dynamic-delete': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      'jest/no-conditional-expect': 'off',
+      'no-case-declarations': 'off',
+      'no-console': 'off',
+      'unicorn/consistent-function-scoping': 'off',
+      'unicorn/no-process-exit': 'off',
     },
   },
-)
+]
