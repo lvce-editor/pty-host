@@ -29,6 +29,7 @@ function updateDependencies {
                                                        updateDependencies             &&
 cd packages/build                                   && updateDependencies && cd ../.. &&
 cd packages/pty-host                                && updateDependencies && cd ../.. &&
+cd packages/memory                                  && updateDependencies && cd ../.. &&
 cd packages/test-integration                        && updateDependencies && cd ../.. &&
 cd packages/test-integration-util                   && updateDependencies && cd ../.. &&
 
