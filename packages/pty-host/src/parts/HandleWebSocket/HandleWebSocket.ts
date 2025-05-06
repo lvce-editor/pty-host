@@ -11,5 +11,4 @@ export const handleWebSocket = async (handle, request) => {
     request,
     requiresSocket: RequiresSocket.requiresSocket,
   })
-  // HandleIpc.handleIpc(ipc)
 }
