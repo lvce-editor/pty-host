@@ -12,7 +12,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@types/node": "^22.9.0",
-    "execa": "^9.5.2",
+    "execa": "^9.5.3",
     "rollup": "^4.40.2"
   }
 }
