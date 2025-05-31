@@ -27,15 +27,15 @@
     "singleQuote": true
   },
   "devDependencies": {
-    "@eslint/js": "^9.27.0",
+    "@eslint/js": "^9.28.0",
     "@lerna/legacy-package-management": "^8.2.2",
-    "@lvce-editor/eslint-config": "^1.47.0",
+    "@lvce-editor/eslint-config": "^1.48.0",
     "@types/eslint__js": "^9.14.0",
-    "eslint": "^9.27.0",
+    "eslint": "^9.28.0",
     "lerna": "^8.2.2",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1"
+    "typescript-eslint": "^8.33.0"
   },
   "engines": {
     "node": ">=18"
