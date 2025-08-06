@@ -1,5 +1,6 @@
 import pluginTypeScript from '@babel/preset-typescript'
 import { babel } from '@rollup/plugin-babel'
+import { default as commonjs } from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { join } from 'path'
 import { rollup } from 'rollup'
@@ -22,16 +23,9 @@ const options = {
       constBindings: true,
       objectShorthand: true,
     },
+    inlineDynamicImports: true,
   },
-  external: [
-    '@lvce-editor/ipc',
-    '@lvce-editor/json-rpc',
-    '@lvce-editor/verror',
-    '@lvce-editor/command',
-    '@lvce-editor/pretty-error',
-    'node-pty',
-    'debug',
-  ],
+  external: ['electron', 'execa', 'ws', 'node-pty', 'debug'],
   plugins: [
     babel({
       babelHelpers: 'bundled',
@@ -39,6 +33,8 @@ const options = {
       presets: [pluginTypeScript],
     }),
     nodeResolve(),
+    // @ts-ignore
+    commonjs(),
   ],
 }
 
