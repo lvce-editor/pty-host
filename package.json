@@ -17,6 +17,7 @@
   "bin": "bin/ptyHost.js",
   "scripts": {
     "build": "node packages/build/src/build.js",
+    "format": "prettier --write .",
     "lint": "eslint .",
     "postinstall": "lerna bootstrap --ci",
     "test": "lerna run test",
