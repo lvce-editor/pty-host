@@ -11,9 +11,9 @@
     "@lvce-editor/assert": "^1.4.0",
     "@lvce-editor/command": "^2.0.0",
     "@lvce-editor/fuzzy-search": "^1.1.0",
-    "@lvce-editor/ipc": "^14.3.0",
+    "@lvce-editor/ipc": "^14.4.0",
     "@lvce-editor/json-rpc": "^7.0.0",
     "@lvce-editor/verror": "^1.7.0",
-    "@types/node": "^22.9.0"
+    "@types/node": "^24.2.0"
   }
 }
