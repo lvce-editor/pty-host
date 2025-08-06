@@ -4,6 +4,8 @@ import * as Command from '../src/parts/Command/Command.js'
 import * as CommandMap from '../src/parts/CommandMap/CommandMap.js'
 import * as HandleWebSocket from '../src/parts/HandleWebSocket/HandleWebSocket.js'
 
+// TODO move this to integration test / e2e test
+
 beforeAll(() => {
   Command.register(CommandMap.commandMap)
 })
