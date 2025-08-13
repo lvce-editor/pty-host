@@ -1,7 +1,6 @@
 {
   "name": "@lvce-editor/pty-host",
   "version": "0.0.0-dev",
-  "description": "",
   "keywords": [
     "lvce-editor",
     "pty-host"
