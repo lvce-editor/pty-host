@@ -6,7 +6,6 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "description": "",
   "devDependencies": {
     "@lvce-editor/assert": "^1.4.0",
     "@lvce-editor/command": "^2.0.0",
