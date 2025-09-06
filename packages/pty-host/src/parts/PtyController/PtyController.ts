@@ -12,7 +12,7 @@ export const create = (ipc, id, cwd, command, args) => {
   Assert.object(ipc)
   Debug.debug(`create ${id} ${cwd}`)
   // @ts-ignore
-  const pty = Pty.create({ cwd, command, args })
+  const pty =await Pty.create({ cwd, command, args })
   const handleData = (event) => {
     ipc.send({
       jsonrpc: '2.0',

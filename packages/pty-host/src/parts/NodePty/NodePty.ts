@@ -39,7 +39,7 @@ class Pty extends EventTarget {
 /**
  *
  * @param {*} param0
- * @returns {any}
+ * @returns {Promise<any>}
  */
 export const create = async ({ cwd, command, args }: any = {}) => {
   try {
