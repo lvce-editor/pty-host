@@ -12,7 +12,7 @@ test.skip('create', () => {
     return
   }
   // @ts-ignore
-  PtyController.create(1)
+  await PtyController.create(1)
 })
 
 test.skip('dispose', () => {
@@ -22,9 +22,9 @@ test.skip('dispose', () => {
     return
   }
   // @ts-ignore
-  PtyController.create(1)
+  await PtyController.create(1)
   // @ts-ignore
-  PtyController.create(2)
+  await PtyController.create(2)
   // @ts-ignore
   expect(PtyController.state.ptyMap[1]).toBeDefined()
   // @ts-ignore
