@@ -5,7 +5,7 @@ import * as PtyController from '../src/parts/PtyController/PtyController.js'
 //   PtyController.disposeAll()
 // })
 
-test.skip('create', () => {
+test.skip('create', async () => {
   // @ts-ignore
   if (Platform.isWindows) {
     // TODO add windows test
@@ -15,7 +15,7 @@ test.skip('create', () => {
   await PtyController.create(1)
 })
 
-test.skip('dispose', () => {
+test.skip('dispose', async () => {
   // @ts-ignore
   if (Platform.isWindows) {
     // TODO add windows test
