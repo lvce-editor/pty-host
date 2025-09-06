@@ -5,26 +5,26 @@ import * as PtyController from '../src/parts/PtyController/PtyController.js'
 //   PtyController.disposeAll()
 // })
 
-test.skip('create', () => {
+test.skip('create', async () => {
   // @ts-ignore
   if (Platform.isWindows) {
     // TODO add windows test
     return
   }
   // @ts-ignore
-  PtyController.create(1)
+  await PtyController.create(1)
 })
 
-test.skip('dispose', () => {
+test.skip('dispose', async () => {
   // @ts-ignore
   if (Platform.isWindows) {
     // TODO add windows test
     return
   }
   // @ts-ignore
-  PtyController.create(1)
+  await PtyController.create(1)
   // @ts-ignore
-  PtyController.create(2)
+  await PtyController.create(2)
   // @ts-ignore
   expect(PtyController.state.ptyMap[1]).toBeDefined()
   // @ts-ignore

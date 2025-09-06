@@ -1,4 +1,3 @@
-import { spawn } from 'node-pty'
 import * as Assert from '../Assert/Assert.ts'
 import { DataEvent } from '../DataEvent/DataEvent.ts'
 import { ExitEvent } from '../ExitEvent/ExitEvent.ts'
@@ -40,13 +39,15 @@ class Pty extends EventTarget {
 /**
  *
  * @param {*} param0
- * @returns {any}
+ * @returns {Promise<any>}
  */
-export const create = ({ cwd, command, args }: any = {}) => {
+export const create = async ({ cwd, command, args }: any = {}) => {
   try {
     Assert.string(cwd)
     Assert.string(command)
     Assert.array(args)
+    const { spawn } = await import('node-pty')
+
     const pty = spawn(command, args, {
       encoding: null,
       cwd,
