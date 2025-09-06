@@ -8,7 +8,7 @@ test('pty', async () => {
   if (process.platform === 'win32') {
     return
   }
-  const pty = Pty.create({
+  const pty = await Pty.create({
     // @ts-ignore
     cwd: process.cwd(),
     command: '/bin/bash',
@@ -35,7 +35,7 @@ test('print data', async () => {
   if (process.platform === 'win32') {
     return
   }
-  const pty = Pty.create({
+  const pty = await Pty.create({
     // @ts-ignore
     cwd: process.cwd(),
     command: process.execPath,
@@ -59,7 +59,7 @@ test('handle exec error', async () => {
   if (process.platform === 'win32') {
     return
   }
-  const pty = Pty.create({
+  const pty = await Pty.create({
     // @ts-ignore
     cwd: process.cwd(),
     command: '/test/does-not-exist',
