@@ -4,7 +4,7 @@ import * as Pty from '../Pty/Pty.ts'
 import * as PtyState from '../PtyState/PtyState.ts'
 
 // TODO maybe merge pty and pty controller
-export const create = (ipc, id, cwd, command, args) => {
+export const create =async  (ipc, id, cwd, command, args) => {
   Assert.number(id)
   Assert.string(cwd)
   Assert.string(command)
