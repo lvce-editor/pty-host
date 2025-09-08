@@ -15,7 +15,7 @@
   "main": "src/ptyHostMain.ts",
   "bin": "bin/ptyHost.js",
   "scripts": {
-    "build": "node packages/build/src/build.js",
+    "build": "node packages/build/src/build.ts",
     "format": "prettier --write .",
     "postinstall": "lerna bootstrap --ci",
     "lint": "eslint .",
@@ -32,6 +32,7 @@
     "eslint": "^9.35.0",
     "lerna": "^8.2.3",
     "prettier": "^3.6.2",
+    "tsx": "^4.7.0",
     "typescript": "^5.9.2"
   },
   "engines": {
