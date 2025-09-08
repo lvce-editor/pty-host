@@ -12,7 +12,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@types/node": "^24.2.0",
     "execa": "^9.6.0",
-    "rollup": "^4.50.0",
+    "rollup": "^4.50.1",
     "@rollup/plugin-commonjs": "28.0.6"
   }
 }
