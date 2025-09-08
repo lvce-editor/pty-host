@@ -3,13 +3,10 @@ import { babel } from '@rollup/plugin-babel'
 import { default as commonjs } from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import { join } from 'path'
-import { rollup } from 'rollup'
+import { rollup, type RollupOptions } from 'rollup'
 import { root } from './root.js'
 
-/**
- * @type {import('rollup').RollupOptions}
- */
-const options = {
+const options: RollupOptions = {
   input: join(root, 'packages/pty-host/src/ptyHostMain.ts'),
   preserveEntrySignatures: 'strict',
   treeshake: {
@@ -33,13 +30,11 @@ const options = {
       presets: [pluginTypeScript],
     }),
     nodeResolve(),
-    // @ts-ignore
     commonjs(),
   ],
 }
 
-export const bundleJs = async () => {
+export const bundleJs = async (): Promise<void> => {
   const input = await rollup(options)
-  // @ts-ignore
-  await input.write(options.output)
+  await input.write(options.output as any)
 }
