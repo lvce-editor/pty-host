@@ -1,18 +1,16 @@
 import * as Assert from '../Assert/Assert.ts'
-import * as Debug from '../Debug/Debug.ts'
 import * as Pty from '../Pty/Pty.ts'
 import * as PtyState from '../PtyState/PtyState.ts'
 
 // TODO maybe merge pty and pty controller
-export const create =async  (ipc, id, cwd, command, args) => {
+export const create = async (ipc, id, cwd, command, args) => {
   Assert.number(id)
   Assert.string(cwd)
   Assert.string(command)
   Assert.array(args)
   Assert.object(ipc)
-  Debug.debug(`create ${id} ${cwd}`)
   // @ts-ignore
-  const pty =await Pty.create({ cwd, command, args })
+  const pty = await Pty.create({ cwd, command, args })
   const handleData = (event) => {
     ipc.send({
       jsonrpc: '2.0',
