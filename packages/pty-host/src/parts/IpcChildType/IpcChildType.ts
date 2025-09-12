@@ -13,6 +13,9 @@ export const Auto = () => {
   if (argv.includes('--ipc-type=node-forked-process')) {
     return NodeForkedProcess
   }
+  if (argv.includes('--ipc-type=websocket')) {
+    return WebSocket
+  }
   if (argv.includes('--ipc-type=electron-utility-process')) {
     return ElectronUtilityProcess
   }
