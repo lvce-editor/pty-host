@@ -1,5 +1,6 @@
 import { test, expect } from '@jest/globals'
 import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
+import * as process from 'node:process'
 
 test('should create PTY with mock shell', async () => {
   const integrationTest = createIntegrationTest({
