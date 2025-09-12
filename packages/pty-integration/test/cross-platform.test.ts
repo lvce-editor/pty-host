@@ -1,6 +1,7 @@
 import { test, expect } from '@jest/globals'
 import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 import { platform } from 'node:os'
+import { setTimeout } from 'node:timers/promises'
 
 test('should work on all platforms', async () => {
   const integrationTest = createIntegrationTest({
@@ -93,9 +94,7 @@ test('should handle different terminal sizes', async () => {
         console.warn('Resize failed:', error)
       }
     }
-    const { promise, resolve } = Promise.withResolvers<void>()
-    setTimeout(resolve, 50)
-    await promise
+    await setTimeout(50)
   }
 
   await integrationTest.write('echo size test\n')

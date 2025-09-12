@@ -1,13 +1,12 @@
 import { IpcChildWithNodeWorker } from '@lvce-editor/ipc'
 
 const createWorkerIpc = async (workerPath) => {
-  const readyPromise = new Promise((resolve) => {
-    globalThis.postMessage = (message) => {
-      if (message === 'ready') {
-        resolve(undefined)
-      }
+  const { promise: readyPromise, resolve } = Promise.withResolvers()
+  globalThis.postMessage = (message) => {
+    if (message === 'ready') {
+      resolve(undefined)
     }
-  })
+  }
 
   let _listener = (data) => {}
 

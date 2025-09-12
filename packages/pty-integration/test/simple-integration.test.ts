@@ -1,5 +1,6 @@
 import { test, expect } from '@jest/globals'
 import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
+import { setTimeout } from 'node:timers/promises'
 
 test('should start pty-host process and create terminal', async () => {
   const integrationTest = createIntegrationTest({
@@ -126,9 +127,7 @@ test('should handle rapid input/output via pty-host', async () => {
   for (const cmd of commands) {
     if (integrationTest.hasExited()) break
     await integrationTest.write(cmd + '\n')
-    const { promise, resolve } = Promise.withResolvers<void>()
-    setTimeout(resolve, 50)
-    await promise
+    await setTimeout(50)
   }
 
   await integrationTest.waitForExit()

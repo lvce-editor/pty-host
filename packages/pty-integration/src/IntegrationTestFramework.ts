@@ -1,5 +1,6 @@
 import { spawn } from 'child_process'
 import { createMockShellPath } from './MockShellUtils.ts'
+import { setTimeout } from 'node:timers/promises'
 
 export interface IntegrationTestOptions {
   command?: string
@@ -55,9 +56,7 @@ export class IntegrationTestFramework {
   private async waitForReady(timeout: number = 5000): Promise<void> {
     const start = Date.now()
     while (!this.ready && !this.isExited && Date.now() - start < timeout) {
-      const { promise, resolve } = Promise.withResolvers<void>()
-      setTimeout(resolve, 10)
-      await promise
+      await setTimeout(10)
     }
 
     if (!this.ready && !this.isExited) {
@@ -82,9 +81,7 @@ export class IntegrationTestFramework {
       !this.isExited &&
       Date.now() - start < timeout
     ) {
-      const { promise, resolve } = Promise.withResolvers<void>()
-      setTimeout(resolve, 10)
-      await promise
+      await setTimeout(10)
     }
 
     if (!this.output.includes(expected)) {
@@ -97,9 +94,7 @@ export class IntegrationTestFramework {
   async waitForExit(timeout: number = 5000): Promise<void> {
     const start = Date.now()
     while (!this.isExited && Date.now() - start < timeout) {
-      const { promise, resolve } = Promise.withResolvers<void>()
-      setTimeout(resolve, 10)
-      await promise
+      await setTimeout(10)
     }
 
     if (!this.isExited) {
@@ -146,9 +141,7 @@ export class IntegrationTestFramework {
           if (this.isExited) break
           await this.write(input + '\n')
           // Small delay between commands
-          const { promise, resolve } = Promise.withResolvers<void>()
-          setTimeout(resolve, 50)
-          await promise
+          await setTimeout(50)
         }
       }
 

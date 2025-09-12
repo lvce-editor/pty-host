@@ -1,6 +1,7 @@
 import { test, expect } from '@jest/globals'
 import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 import * as process from 'node:process'
+import { setTimeout } from 'node:timers/promises'
 
 test('should create PTY with mock shell', async () => {
   const integrationTest = createIntegrationTest({
@@ -50,9 +51,7 @@ test.skip('should handle PTY disposal', async () => {
   integrationTest.dispose()
 
   // Wait a bit for cleanup
-  const { promise, resolve } = Promise.withResolvers<void>()
-  setTimeout(resolve, 100)
-  await promise
+  await setTimeout(100)
 
   expect(integrationTest.getExitCode()).not.toBeNull()
 })
