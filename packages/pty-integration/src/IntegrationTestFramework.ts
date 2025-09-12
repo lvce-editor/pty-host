@@ -1,5 +1,5 @@
 import { spawn } from 'child_process'
-import { createMockShellPath } from './MockShellUtils.js'
+import { createMockShellPath } from './MockShellUtils.ts'
 
 export interface IntegrationTestOptions {
   command?: string
@@ -27,7 +27,7 @@ export class IntegrationTestFramework {
     const mockShellPath = createMockShellPath()
     this.mockShellProcess = spawn('node', [mockShellPath], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: this.options.cwd || process.cwd()
+      cwd: this.options.cwd || process.cwd(),
     })
 
     // Set up event handlers
@@ -54,10 +54,10 @@ export class IntegrationTestFramework {
 
   private async waitForReady(timeout: number = 5000): Promise<void> {
     const start = Date.now()
-    while (!this.ready && !this.isExited && (Date.now() - start) < timeout) {
-      await new Promise(resolve => setTimeout(resolve, 10))
+    while (!this.ready && !this.isExited && Date.now() - start < timeout) {
+      await new Promise((resolve) => setTimeout(resolve, 10))
     }
-    
+
     if (!this.ready && !this.isExited) {
       throw new Error(`Terminal did not become ready within ${timeout}ms`)
     }
@@ -67,7 +67,7 @@ export class IntegrationTestFramework {
     if (this.isExited) {
       throw new Error('Terminal has exited')
     }
-    
+
     if (this.mockShellProcess && this.mockShellProcess.stdin) {
       this.mockShellProcess.stdin.write(input)
     }
@@ -75,21 +75,27 @@ export class IntegrationTestFramework {
 
   async waitForOutput(expected: string, timeout: number = 5000): Promise<void> {
     const start = Date.now()
-    while (!this.output.includes(expected) && !this.isExited && (Date.now() - start) < timeout) {
-      await new Promise(resolve => setTimeout(resolve, 10))
+    while (
+      !this.output.includes(expected) &&
+      !this.isExited &&
+      Date.now() - start < timeout
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 10))
     }
-    
+
     if (!this.output.includes(expected)) {
-      throw new Error(`Expected output "${expected}" not found within ${timeout}ms. Got: ${this.output}`)
+      throw new Error(
+        `Expected output "${expected}" not found within ${timeout}ms. Got: ${this.output}`,
+      )
     }
   }
 
   async waitForExit(timeout: number = 5000): Promise<void> {
     const start = Date.now()
-    while (!this.isExited && (Date.now() - start) < timeout) {
-      await new Promise(resolve => setTimeout(resolve, 10))
+    while (!this.isExited && Date.now() - start < timeout) {
+      await new Promise((resolve) => setTimeout(resolve, 10))
     }
-    
+
     if (!this.isExited) {
       throw new Error(`Process did not exit within ${timeout}ms`)
     }
@@ -127,14 +133,14 @@ export class IntegrationTestFramework {
   async runTest(): Promise<void> {
     try {
       await this.start()
-      
+
       // Send input commands if provided
       if (this.options.input) {
         for (const input of this.options.input) {
           if (this.isExited) break
           await this.write(input + '\n')
           // Small delay between commands
-          await new Promise(resolve => setTimeout(resolve, 50))
+          await new Promise((resolve) => setTimeout(resolve, 50))
         }
       }
 
@@ -149,7 +155,9 @@ export class IntegrationTestFramework {
       if (this.options.expectedError) {
         for (const expected of this.options.expectedError) {
           if (!this.error.includes(expected)) {
-            throw new Error(`Expected error "${expected}" not found. Got: ${this.error}`)
+            throw new Error(
+              `Expected error "${expected}" not found. Got: ${this.error}`,
+            )
           }
         }
       }
@@ -158,17 +166,18 @@ export class IntegrationTestFramework {
       if (this.options.input && this.options.input.includes('exit')) {
         await this.waitForExit()
       }
-
     } finally {
       await this.dispose()
     }
   }
 }
 
-export function createIntegrationTest(options: Partial<IntegrationTestOptions>): IntegrationTestFramework {
+export function createIntegrationTest(
+  options: Partial<IntegrationTestOptions>,
+): IntegrationTestFramework {
   const defaultOptions: IntegrationTestOptions = {
-    timeout: 10000
+    timeout: 10000,
   }
-  
+
   return new IntegrationTestFramework({ ...defaultOptions, ...options })
 }
