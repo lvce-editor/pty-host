@@ -126,7 +126,9 @@ test('should handle rapid input/output via pty-host', async () => {
   for (const cmd of commands) {
     if (integrationTest.hasExited()) break
     await integrationTest.write(cmd + '\n')
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    const { promise, resolve } = Promise.withResolvers<void>()
+    setTimeout(resolve, 50)
+    await promise
   }
 
   await integrationTest.waitForExit()

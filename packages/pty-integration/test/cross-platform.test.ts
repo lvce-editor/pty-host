@@ -93,7 +93,9 @@ test('should handle different terminal sizes', async () => {
         console.warn('Resize failed:', error)
       }
     }
-    await new Promise((resolve) => setTimeout(resolve, 50))
+    const { promise, resolve } = Promise.withResolvers<void>()
+    setTimeout(resolve, 50)
+    await promise
   }
 
   await integrationTest.write('echo size test\n')

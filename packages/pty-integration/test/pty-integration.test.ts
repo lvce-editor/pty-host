@@ -50,7 +50,9 @@ test.skip('should handle PTY disposal', async () => {
   integrationTest.dispose()
 
   // Wait a bit for cleanup
-  await new Promise((resolve) => setTimeout(resolve, 100))
+  const { promise, resolve } = Promise.withResolvers<void>()
+  setTimeout(resolve, 100)
+  await promise
 
   expect(integrationTest.getExitCode()).not.toBeNull()
 })

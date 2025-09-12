@@ -55,7 +55,9 @@ export class IntegrationTestFramework {
   private async waitForReady(timeout: number = 5000): Promise<void> {
     const start = Date.now()
     while (!this.ready && !this.isExited && Date.now() - start < timeout) {
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      const { promise, resolve } = Promise.withResolvers<void>()
+      setTimeout(resolve, 10)
+      await promise
     }
 
     if (!this.ready && !this.isExited) {
@@ -80,7 +82,9 @@ export class IntegrationTestFramework {
       !this.isExited &&
       Date.now() - start < timeout
     ) {
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      const { promise, resolve } = Promise.withResolvers<void>()
+      setTimeout(resolve, 10)
+      await promise
     }
 
     if (!this.output.includes(expected)) {
@@ -93,7 +97,9 @@ export class IntegrationTestFramework {
   async waitForExit(timeout: number = 5000): Promise<void> {
     const start = Date.now()
     while (!this.isExited && Date.now() - start < timeout) {
-      await new Promise((resolve) => setTimeout(resolve, 10))
+      const { promise, resolve } = Promise.withResolvers<void>()
+      setTimeout(resolve, 10)
+      await promise
     }
 
     if (!this.isExited) {
@@ -140,7 +146,9 @@ export class IntegrationTestFramework {
           if (this.isExited) break
           await this.write(input + '\n')
           // Small delay between commands
-          await new Promise((resolve) => setTimeout(resolve, 50))
+          const { promise, resolve } = Promise.withResolvers<void>()
+          setTimeout(resolve, 50)
+          await promise
         }
       }
 
