@@ -5,7 +5,7 @@
  * Provides consistent, predictable output across all platforms
  */
 
-import { spawn } from 'child_process'
+// import { spawn } from 'child_process' // Not used currently
 import readline from 'readline'
 import fs from 'fs'
 import path from 'path'
@@ -23,7 +23,7 @@ const commands = {
       const files = fs.readdirSync(currentDir)
       return files.join('\n')
     } catch (error) {
-      return `ls: ${error.message}`
+      return `ls: ${error instanceof Error ? error.message : String(error)}`
     }
   },
   'cd': (args) => {

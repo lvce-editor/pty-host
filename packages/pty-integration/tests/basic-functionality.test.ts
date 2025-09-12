@@ -18,7 +18,7 @@ test('should execute simple command', async () => {
     expectedOutput: ['hello world', 'testuser $']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle pwd command', async () => {
@@ -27,7 +27,7 @@ test('should handle pwd command', async () => {
     expectedOutput: [process.cwd()]
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle ls command', async () => {
@@ -36,7 +36,7 @@ test('should handle ls command', async () => {
     expectedOutput: ['package.json', 'testuser $']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle cd command', async () => {
@@ -45,7 +45,7 @@ test('should handle cd command', async () => {
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')]
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle unknown command', async () => {
@@ -54,7 +54,7 @@ test('should handle unknown command', async () => {
     expectedOutput: ['Command not found: unknown-command']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle exit command', async () => {
@@ -62,7 +62,7 @@ test('should handle exit command', async () => {
     input: ['exit']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
   const exitCode = integrationTest.getExitCode()
   expect(exitCode).toBe(0)
@@ -83,7 +83,7 @@ test('should handle multiple commands in sequence', async () => {
     ]
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle test-command for verification', async () => {
@@ -92,7 +92,7 @@ test('should handle test-command for verification', async () => {
     expectedOutput: ['test-output']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle error command', async () => {
