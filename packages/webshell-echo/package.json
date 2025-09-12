@@ -1,0 +1,11 @@
+{
+  "name": "webshell-echo",
+  "version": "1.0.0",
+  "description": "Echo command for WebShell",
+  "main": "echo.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "echo", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
+

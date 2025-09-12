@@ -1,0 +1,11 @@
+{
+  "name": "webshell-cat",
+  "version": "1.0.0",
+  "description": "Cat command for WebShell",
+  "main": "cat.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "cat", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
+

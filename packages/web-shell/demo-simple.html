@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Shell - Simple Demo</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #569cd6;
+        }
+
+        .terminal-container {
+            flex: 1;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #000;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+            min-height: 200px;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #2d2d30;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .help-text {
+            background-color: #2d2d30;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .help-text h3 {
+            margin-top: 0;
+            color: #4ec9b0;
+        }
+
+        .help-text code {
+            background-color: #1e1e1e;
+            padding: 2px 4px;
+            border-radius: 2px;
+            color: #dcdcaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Web Shell - Simple Demo</h1>
+            <p>Pure JavaScript terminal with WebWorker commands</p>
+        </div>
+
+        <div class="help-text">
+            <h3>Features:</h3>
+            <p>
+                • Pure JavaScript - no compilation needed<br>
+                • WebWorker-based commands for isolation<br>
+                • Try: <code>ls</code>, <code>cat readme.txt</code>, <code>cd Documents</code>, <code>pwd</code>, <code>help</code>
+            </p>
+        </div>
+
+        <div class="terminal-container">
+            <div class="status" id="status">Loading...</div>
+            <div class="terminal-output" id="output"></div>
+            <div class="terminal-input">
+                <span class="prompt" id="prompt">user@fake-terminal:~$ </span>
+                <input type="text" class="input-field" id="input" placeholder="Type a command..." disabled>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the WebShell
+        import { WebShellWorker } from './src/WebShellWorker.js'
+
+        // Initialize the shell
+        const shell = new WebShellWorker({
+            commandBaseUrl: './packages/'
+        })
+
+        const output = document.getElementById('output')
+        const input = document.getElementById('input')
+        const prompt = document.getElementById('prompt')
+        const status = document.getElementById('status')
+
+        function updatePrompt() {
+            prompt.textContent = shell.getPrompt()
+        }
+
+        function addOutput(text) {
+            output.textContent += text
+            output.scrollTop = output.scrollHeight
+        }
+
+        function clearOutput() {
+            output.textContent = ''
+        }
+
+        async function executeCommand() {
+            const command = input.value.trim()
+            if (command === '') return
+
+            addOutput(shell.getPrompt() + command + '\n')
+            input.value = ''
+
+            try {
+                const result = await shell.executeCommand(command)
+
+                if (result.output.includes('\x1b[2J')) {
+                    clearOutput()
+                } else {
+                    addOutput(result.output)
+                }
+
+                updatePrompt()
+                status.textContent = result.exitCode === 0 ? 'Success' : 'Error'
+            } catch (error) {
+                addOutput(`Error: ${error.message}\n`)
+                status.textContent = 'Error'
+            }
+
+            input.focus()
+        }
+
+        // Event listeners
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand()
+            }
+        })
+
+        // Initialize
+        setTimeout(() => {
+            status.textContent = 'Ready'
+            input.disabled = false
+            input.focus()
+
+            addOutput('Web Shell initialized!\n')
+            addOutput('Type "help" to see available commands.\n\n')
+            updatePrompt()
+        }, 1000)
+    </script>
+</body>
+</html>
+
