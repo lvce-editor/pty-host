@@ -1,16 +1,16 @@
 import { test, expect } from '@jest/globals'
-import { createE2ETest } from '../src/PtyE2ETest.js'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.js'
 import { platform } from 'os'
 
 test('should work on all platforms', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['echo platform test', 'exit'],
     expectedOutput: ['platform test']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
-  const output = e2eTest.getOutput()
+  const output = integrationTest.getOutput()
   expect(output).toContain('platform test')
   expect(output).toContain('testuser $')
 })
@@ -20,12 +20,12 @@ test('should handle Windows-style paths on Windows', async () => {
     return
   }
 
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['cd C:\\', 'pwd', 'exit'],
     expectedOutput: ['C:\\']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle Unix-style paths on Unix systems', async () => {
@@ -33,46 +33,46 @@ test('should handle Unix-style paths on Unix systems', async () => {
     return
   }
 
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['cd /tmp', 'pwd', 'exit'],
     expectedOutput: ['/tmp']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle different line endings', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['echo line1', 'echo line2', 'exit'],
     expectedOutput: ['line1', 'line2']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
-  const output = e2eTest.getOutput()
+  const output = integrationTest.getOutput()
   // Should handle both \n and \r\n line endings
   expect(output).toContain('line1')
   expect(output).toContain('line2')
 })
 
 test('should handle platform-specific commands', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['help', 'exit'],
     expectedOutput: ['Available commands:']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
-  const output = e2eTest.getOutput()
+  const output = integrationTest.getOutput()
   expect(output).toContain('pwd, ls, cd, echo, exit, help, test-command, error-command')
 })
 
 test('should handle different terminal sizes', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     expectedOutput: ['testuser $']
   })
 
-  await e2eTest.start()
+  await integrationTest.start()
 
   // Test different terminal sizes
   const sizes = [
@@ -83,9 +83,9 @@ test('should handle different terminal sizes', async () => {
   ]
 
   for (const size of sizes) {
-    if ((e2eTest as any).pty && !e2eTest.hasExited()) {
+    if ((integrationTest as any).pty && !integrationTest.hasExited()) {
       try {
-        (e2eTest as any).pty.resize(size.cols, size.rows)
+        (integrationTest as any).pty.resize(size.cols, size.rows)
       } catch (error) {
         // Ignore resize errors if PTY is already closed
         console.warn('Resize failed:', error)
@@ -94,23 +94,23 @@ test('should handle different terminal sizes', async () => {
     await new Promise(resolve => setTimeout(resolve, 50))
   }
 
-  await e2eTest.write('echo size test\n')
-  await e2eTest.waitForOutput('size test')
+  await integrationTest.write('echo size test\n')
+  await integrationTest.waitForOutput('size test')
 
-  e2eTest.dispose()
+  integrationTest.dispose()
 })
 
 test('should handle different encoding', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['echo unicode: 你好世界', 'exit'],
     expectedOutput: ['unicode: 你好世界']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })
 
 test('should handle special characters in commands', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: [
       'echo "quoted string"',
       'echo unquoted string',
@@ -124,5 +124,5 @@ test('should handle special characters in commands', async () => {
     ]
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 })

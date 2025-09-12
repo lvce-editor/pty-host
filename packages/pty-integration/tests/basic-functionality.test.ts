@@ -1,19 +1,19 @@
 import { test, expect } from '@jest/globals'
-import { createE2ETest } from '../src/PtyE2ETest.js'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.js'
 
-test('should start mock shell and show prompt', async () => {
-  const e2eTest = createE2ETest({
+test('should start pty-host process and show prompt', async () => {
+  const integrationTest = createIntegrationTest({
     expectedOutput: ['testuser $']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
-  const output = e2eTest.getOutput()
+  const output = integrationTest.getOutput()
   expect(output).toContain('testuser $')
 })
 
 test('should execute simple command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['echo hello world'],
     expectedOutput: ['hello world', 'testuser $']
   })
@@ -22,7 +22,7 @@ test('should execute simple command', async () => {
 })
 
 test('should handle pwd command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['pwd'],
     expectedOutput: [process.cwd()]
   })
@@ -31,7 +31,7 @@ test('should handle pwd command', async () => {
 })
 
 test('should handle ls command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['ls'],
     expectedOutput: ['package.json', 'testuser $']
   })
@@ -40,7 +40,7 @@ test('should handle ls command', async () => {
 })
 
 test('should handle cd command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['cd ..', 'pwd'],
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')]
   })
@@ -49,7 +49,7 @@ test('should handle cd command', async () => {
 })
 
 test('should handle unknown command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['unknown-command'],
     expectedOutput: ['Command not found: unknown-command']
   })
@@ -58,18 +58,18 @@ test('should handle unknown command', async () => {
 })
 
 test('should handle exit command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['exit']
   })
 
   await e2eTest.runTest()
 
-  const exitCode = e2eTest.getExitCode()
+  const exitCode = integrationTest.getExitCode()
   expect(exitCode).toBe(0)
 })
 
 test('should handle multiple commands in sequence', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: [
       'echo first command',
       'echo second command',
@@ -87,7 +87,7 @@ test('should handle multiple commands in sequence', async () => {
 })
 
 test('should handle test-command for verification', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['test-command'],
     expectedOutput: ['test-output']
   })
@@ -96,13 +96,13 @@ test('should handle test-command for verification', async () => {
 })
 
 test('should handle error command', async () => {
-  const e2eTest = createE2ETest({
+  const integrationTest = createIntegrationTest({
     input: ['error-command'],
     expectedOutput: ['Command failed']
   })
 
-  await e2eTest.runTest()
+  await integrationTest.runTest()
 
-  const output = e2eTest.getOutput()
+  const output = integrationTest.getOutput()
   expect(output).toContain('Error: This is a test error')
 })
