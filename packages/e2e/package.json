@@ -5,6 +5,12 @@
   "scripts": {
     "e2e": "node ./node_modules/@lvce-editor/test-with-playwright/bin/test-with-playwright.js  --only-extension=. --test-path=.",
     "e2e:headless": "node ./node_modules/@lvce-editor/test-with-playwright/bin/test-with-playwright.js  --only-extension=. --test-path=. --headless",
+    "terminal:record": "node --import tsx src/terminal-scenarios.ts",
+    "terminal:record-real": "node --import tsx src/terminal-e2e-standalone.ts",
+    "terminal:replay": "node --import tsx src/terminal-test-runner-cli.ts",
+    "terminal:list": "node --import tsx src/terminal-test-runner-cli.ts --list",
+    "terminal:all": "node --import tsx src/terminal-test-runner-cli.ts --all",
+    "terminal:visualize": "open src/terminal-visualizer.html",
     "type-check": "tsc"
   },
   "type": "module",
@@ -12,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@lvce-editor/test-with-playwright": "^6.7.0"
+    "@lvce-editor/test-with-playwright": "^6.7.0",
+    "tsx": "^4.7.0"
   }
 }

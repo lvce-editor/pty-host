@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Test Visualizer</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #569cd6;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: #1177bb;
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        select {
+            background-color: #3c3c3c;
+            color: #d4d4d4;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .terminal-container {
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #000;
+            padding: 20px;
+            min-height: 400px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+            min-height: 200px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background-color: #333;
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #0e639c;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .session-info {
+            background-color: #2d2d30;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .session-info h3 {
+            margin-top: 0;
+            color: #4ec9b0;
+        }
+
+        .session-info p {
+            margin: 5px 0;
+        }
+
+        .event-log {
+            background-color: #1e1e1e;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .event-item {
+            margin: 2px 0;
+            padding: 2px 0;
+        }
+
+        .event-data { color: #9cdcfe; }
+        .event-exit { color: #f44747; }
+        .event-resize { color: #4ec9b0; }
+        .event-write { color: #dcdcaa; }
+        .event-command { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Terminal Test Visualizer</h1>
+
+        <div class="session-info" id="sessionInfo" style="display: none;">
+            <h3>Session Information</h3>
+            <p><strong>Command:</strong> <span id="sessionCommand"></span></p>
+            <p><strong>Platform:</strong> <span id="sessionPlatform"></span></p>
+            <p><strong>Duration:</strong> <span id="sessionDuration"></span></p>
+            <p><strong>Events:</strong> <span id="sessionEvents"></span></p>
+        </div>
+
+        <div class="controls">
+            <select id="sessionSelect">
+                <option value="">Select a session...</option>
+            </select>
+            <button id="loadBtn">Load Session</button>
+            <button id="playBtn" disabled>Play</button>
+            <button id="pauseBtn" disabled>Pause</button>
+            <button id="stopBtn" disabled>Stop</button>
+            <button id="resetBtn" disabled>Reset</button>
+            <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1" style="width: 100px;">
+            <span>Speed: <span id="speedValue">1x</span></span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-output" id="terminalOutput"></div>
+        </div>
+
+        <div class="event-log" id="eventLog">
+            <div class="event-item">Event log will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        class TerminalVisualizer {
+            constructor() {
+                this.sessions = [];
+                this.currentSession = null;
+                this.isPlaying = false;
+                this.currentEventIndex = 0;
+                this.timeouts = [];
+
+                this.initializeElements();
+                this.loadSessions();
+            }
+
+            initializeElements() {
+                this.sessionSelect = document.getElementById('sessionSelect');
+                this.loadBtn = document.getElementById('loadBtn');
+                this.playBtn = document.getElementById('playBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.stopBtn = document.getElementById('stopBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.speedSlider = document.getElementById('speedSlider');
+                this.speedValue = document.getElementById('speedValue');
+                this.progressFill = document.getElementById('progressFill');
+                this.terminalOutput = document.getElementById('terminalOutput');
+                this.eventLog = document.getElementById('eventLog');
+                this.sessionInfo = document.getElementById('sessionInfo');
+
+                this.loadBtn.addEventListener('click', () => this.loadSession());
+                this.playBtn.addEventListener('click', () => this.play());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.stopBtn.addEventListener('click', () => this.stop());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.speedSlider.addEventListener('input', (e) => {
+                    this.speedValue.textContent = e.target.value + 'x';
+                });
+            }
+
+            async loadSessions() {
+                try {
+                    // In a real implementation, this would fetch from the server
+                    // For now, we'll simulate with some example sessions
+                    this.sessions = [
+                        {
+                            id: 'basic-command-1',
+                            metadata: {
+                                command: 'echo "Hello World"',
+                                platform: 'linux',
+                                duration: 100,
+                                eventCount: 3,
+                                description: 'Basic command test'
+                            }
+                        },
+                        {
+                            id: 'error-scenario-1',
+                            metadata: {
+                                command: 'ls /nonexistent',
+                                platform: 'linux',
+                                duration: 150,
+                                eventCount: 3,
+                                description: 'Error scenario test'
+                            }
+                        }
+                    ];
+
+                    this.populateSessionSelect();
+                } catch (error) {
+                    console.error('Failed to load sessions:', error);
+                }
+            }
+
+            populateSessionSelect() {
+                this.sessionSelect.innerHTML = '<option value="">Select a session...</option>';
+                this.sessions.forEach(session => {
+                    const option = document.createElement('option');
+                    option.value = session.id;
+                    option.textContent = `${session.metadata.command} (${session.metadata.platform})`;
+                    this.sessionSelect.appendChild(option);
+                });
+            }
+
+            async loadSession() {
+                const sessionId = this.sessionSelect.value;
+                if (!sessionId) return;
+
+                try {
+                    // In a real implementation, this would fetch the session data
+                    // For now, we'll simulate loading
+                    const session = this.sessions.find(s => s.id === sessionId);
+                    if (session) {
+                        this.currentSession = {
+                            ...session,
+                            events: this.generateMockEvents(session.metadata)
+                        };
+                        this.displaySessionInfo();
+                        this.reset();
+                        this.playBtn.disabled = false;
+                        this.resetBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error('Failed to load session:', error);
+                }
+            }
+
+            generateMockEvents(metadata) {
+                const events = [];
+                let timestamp = 0;
+
+                // Command event
+                events.push({
+                    type: 'command',
+                    timestamp: timestamp,
+                    command: metadata.command.split(' ')[0],
+                    args: metadata.command.split(' ').slice(1)
+                });
+                timestamp += 50;
+
+                // Data events
+                if (metadata.command.includes('echo')) {
+                    events.push({
+                        type: 'data',
+                        timestamp: timestamp,
+                        data: 'Hello World\r\n'
+                    });
+                } else if (metadata.command.includes('ls')) {
+                    events.push({
+                        type: 'data',
+                        timestamp: timestamp,
+                        data: 'ls: cannot access \'/nonexistent\': No such file or directory\r\n'
+                    });
+                }
+                timestamp += 50;
+
+                // Exit event
+                events.push({
+                    type: 'exit',
+                    timestamp: timestamp,
+                    data: metadata.command.includes('ls') ? 2 : 0
+                });
+
+                return events;
+            }
+
+            displaySessionInfo() {
+                if (!this.currentSession) return;
+
+                document.getElementById('sessionCommand').textContent = this.currentSession.metadata.command;
+                document.getElementById('sessionPlatform').textContent = this.currentSession.metadata.platform;
+                document.getElementById('sessionDuration').textContent = this.currentSession.metadata.duration + 'ms';
+                document.getElementById('sessionEvents').textContent = this.currentSession.metadata.eventCount;
+                this.sessionInfo.style.display = 'block';
+            }
+
+            play() {
+                if (!this.currentSession || this.isPlaying) return;
+
+                this.isPlaying = true;
+                this.playBtn.disabled = true;
+                this.pauseBtn.disabled = false;
+                this.stopBtn.disabled = false;
+
+                this.playNextEvent();
+            }
+
+            playNextEvent() {
+                if (!this.currentSession || !this.isPlaying) return;
+
+                if (this.currentEventIndex >= this.currentSession.events.length) {
+                    this.stop();
+                    return;
+                }
+
+                const event = this.currentSession.events[this.currentEventIndex];
+                const delay = this.calculateDelay(event);
+
+                const timeout = setTimeout(() => {
+                    this.handleEvent(event);
+                    this.currentEventIndex++;
+                    this.updateProgress();
+                    this.playNextEvent();
+                }, delay);
+
+                this.timeouts.push(timeout);
+            }
+
+            calculateDelay(event) {
+                if (this.currentEventIndex === 0) return 0;
+
+                const previousEvent = this.currentSession.events[this.currentEventIndex - 1];
+                const timeDiff = event.timestamp - previousEvent.timestamp;
+                const speed = parseFloat(this.speedSlider.value);
+
+                return Math.max(0, timeDiff / speed);
+            }
+
+            handleEvent(event) {
+                this.logEvent(event);
+
+                switch (event.type) {
+                    case 'data':
+                        this.terminalOutput.textContent += event.data;
+                        this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+                        break;
+                    case 'exit':
+                        this.terminalOutput.textContent += `\n[Process exited with code ${event.data}]\n`;
+                        break;
+                    case 'resize':
+                        // Handle resize if needed
+                        break;
+                    case 'write':
+                        // Handle write if needed
+                        break;
+                }
+            }
+
+            logEvent(event) {
+                const eventItem = document.createElement('div');
+                eventItem.className = `event-item event-${event.type}`;
+
+                let content = `[${event.timestamp}ms] ${event.type.toUpperCase()}`;
+                if (event.data !== undefined) {
+                    content += `: ${JSON.stringify(event.data)}`;
+                }
+                if (event.command) {
+                    content += `: ${event.command} ${(event.args || []).join(' ')}`;
+                }
+
+                eventItem.textContent = content;
+                this.eventLog.appendChild(eventItem);
+                this.eventLog.scrollTop = this.eventLog.scrollHeight;
+            }
+
+            updateProgress() {
+                if (!this.currentSession) return;
+
+                const progress = (this.currentEventIndex / this.currentSession.events.length) * 100;
+                this.progressFill.style.width = progress + '%';
+            }
+
+            pause() {
+                this.isPlaying = false;
+                this.clearTimeouts();
+                this.playBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+            }
+
+            stop() {
+                this.isPlaying = false;
+                this.clearTimeouts();
+                this.playBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.stopBtn.disabled = true;
+            }
+
+            reset() {
+                this.isPlaying = false;
+                this.clearTimeouts();
+                this.currentEventIndex = 0;
+                this.terminalOutput.textContent = '';
+                this.eventLog.innerHTML = '<div class="event-item">Event log will appear here...</div>';
+                this.progressFill.style.width = '0%';
+                this.playBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+                this.stopBtn.disabled = true;
+            }
+
+            clearTimeouts() {
+                this.timeouts.forEach(timeout => clearTimeout(timeout));
+                this.timeouts = [];
+            }
+        }
+
+        // Initialize the visualizer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TerminalVisualizer();
+        });
+    </script>
+</body>
+</html>
+
+

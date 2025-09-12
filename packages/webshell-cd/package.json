@@ -1,0 +1,11 @@
+{
+  "name": "webshell-cd",
+  "version": "1.0.0",
+  "description": "Change directory command for WebShell",
+  "main": "cd.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "cd", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
+

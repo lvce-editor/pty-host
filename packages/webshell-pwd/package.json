@@ -1,0 +1,11 @@
+{
+  "name": "webshell-pwd",
+  "version": "1.0.0",
+  "description": "Print working directory command for WebShell",
+  "main": "pwd.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "pwd", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
+

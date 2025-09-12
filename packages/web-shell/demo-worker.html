@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Shell with WebWorkers Demo</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #569cd6;
+        }
+        
+        .terminal-container {
+            flex: 1;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #000;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+            min-height: 200px;
+        }
+        
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+        }
+        
+        .input-field::placeholder {
+            color: #666;
+        }
+        
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #2d2d30;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .help-text {
+            background-color: #2d2d30;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        
+        .help-text h3 {
+            margin-top: 0;
+            color: #4ec9b0;
+        }
+        
+        .help-text code {
+            background-color: #1e1e1e;
+            padding: 2px 4px;
+            border-radius: 2px;
+            color: #dcdcaa;
+        }
+        
+        .loading {
+            color: #ffa500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Web Shell with WebWorkers Demo</h1>
+            <p>Interactive JavaScript-based terminal with WebWorker commands</p>
+        </div>
+        
+        <div class="help-text">
+            <h3>Features:</h3>
+            <p>
+                • Each command runs in a separate WebWorker for isolation and parallelism<br>
+                • Commands can be installed/uninstalled at runtime<br>
+                • Commands can be terminated if they hang<br>
+                • Try: <code>ls</code>, <code>cat readme.txt</code>, <code>cd Documents</code>, <code>pwd</code>, <code>commands</code>
+            </p>
+        </div>
+        
+        <div class="terminal-container">
+            <div class="status" id="status">Loading commands...</div>
+            <div class="terminal-output" id="output"></div>
+            <div class="terminal-input">
+                <span class="prompt" id="prompt">user@fake-terminal:~$ </span>
+                <input type="text" class="input-field" id="input" placeholder="Type a command..." disabled>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simplified WebShell with WebWorkers
+        class WebShellWorker {
+            constructor() {
+                this.fs = this.createFileSystem()
+                this.commands = new Map()
+                this.history = []
+                this.currentPath = '/home/user'
+                this.isLoading = true
+            }
+
+            createFileSystem() {
+                const root = {
+                    type: 'directory',
+                    name: '/',
+                    children: new Map(),
+                    permissions: 'drwxr-xr-x',
+                    owner: 'root',
+                    group: 'root',
+                    size: 4096,
+                    modified: new Date()
+                }
+
+                // Create directory structure
+                const home = { type: 'directory', name: 'home', children: new Map(), permissions: 'drwxr-xr-x', owner: 'root', group: 'root', size: 4096, modified: new Date() }
+                const user = { type: 'directory', name: 'user', children: new Map(), permissions: 'drwxr-xr-x', owner: 'user', group: 'user', size: 4096, modified: new Date() }
+                const documents = { type: 'directory', name: 'Documents', children: new Map(), permissions: 'drwxr-xr-x', owner: 'user', group: 'user', size: 4096, modified: new Date() }
+                const downloads = { type: 'directory', name: 'Downloads', children: new Map(), permissions: 'drwxr-xr-x', owner: 'user', group: 'user', size: 4096, modified: new Date() }
+
+                // Create files
+                const readme = { type: 'file', name: 'readme.txt', content: 'Welcome to the Web Shell!\nThis is a demo of WebWorker-based commands.\nEach command runs in isolation.', permissions: '-rw-r--r--', owner: 'user', group: 'user', size: 120, modified: new Date() }
+                const notes = { type: 'file', name: 'notes.md', content: '# My Notes\n\n- WebWorkers provide isolation\n- Commands can run in parallel\n- Easy to add new commands', permissions: '-rw-r--r--', owner: 'user', group: 'user', size: 150, modified: new Date() }
+
+                // Build structure
+                documents.children.set('readme.txt', readme)
+                documents.children.set('notes.md', notes)
+                user.children.set('Documents', documents)
+                user.children.set('Downloads', downloads)
+                home.children.set('user', user)
+                root.children.set('home', home)
+
+                return { root, getCurrentPath: () => this.currentPath, setCurrentPath: (path) => { this.currentPath = path; return true } }
+            }
+
+            async installCommand(name, workerCode, description) {
+                try {
+                    const blob = new Blob([workerCode], { type: 'application/javascript' })
+                    const workerUrl = URL.createObjectURL(blob)
+                    const worker = new Worker(workerUrl)
+                    
+                    const command = {
+                        name,
+                        description,
+                        worker,
+                        isRunning: false,
+                        currentExecutionId: null
+                    }
+
+                    worker.onmessage = (event) => {
+                        this.handleCommandResponse(event.data, command)
+                    }
+
+                    worker.onerror = (error) => {
+                        console.error(`Worker error for command ${name}:`, error)
+                    }
+
+                    this.commands.set(name, command)
+                    return true
+                } catch (error) {
+                    console.error(`Failed to install command ${name}:`, error)
+                    return false
+                }
+            }
+
+            async executeCommand(input) {
+                const trimmedInput = input.trim()
+                
+                if (trimmedInput === '') {
+                    return { output: '', exitCode: 0 }
+                }
+
+                this.history.push(trimmedInput)
+
+                if (trimmedInput === 'exit' || trimmedInput === 'quit') {
+                    this.terminateAllCommands()
+                    return { output: 'Goodbye!\n', exitCode: 0 }
+                }
+
+                if (trimmedInput === 'clear') {
+                    return { output: '\x1b[2J', exitCode: 0 }
+                }
+
+                if (trimmedInput === 'help') {
+                    return this.showHelp()
+                }
+
+                if (trimmedInput === 'history') {
+                    return this.showHistory()
+                }
+
+                if (trimmedInput === 'commands') {
+                    return this.showCommands()
+                }
+
+                const parts = this.parseCommand(trimmedInput)
+                const commandName = parts[0]
+                const args = parts.slice(1)
+
+                try {
+                    return await this.executeWebWorkerCommand(commandName, args)
+                } catch (error) {
+                    return {
+                        output: `bash: ${commandName}: ${error.message}\n`,
+                        exitCode: 127
+                    }
+                }
+            }
+
+            async executeWebWorkerCommand(commandName, args) {
+                const command = this.commands.get(commandName)
+                if (!command) {
+                    throw new Error('command not found')
+                }
+
+                if (command.isRunning) {
+                    throw new Error('command is already running')
+                }
+
+                const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                command.isRunning = true
+                command.currentExecutionId = executionId
+
+                return new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        this.terminateCommand(commandName)
+                        reject(new Error(`Command ${commandName} timed out`))
+                    }, 10000)
+
+                    command.responseHandler = (response) => {
+                        if (response.id === executionId) {
+                            if (response.type === 'exit') {
+                                clearTimeout(timeout)
+                                command.isRunning = false
+                                command.currentExecutionId = null
+                                resolve({ output: command.output || '', exitCode: response.exitCode || 0 })
+                            } else if (response.type === 'error') {
+                                clearTimeout(timeout)
+                                command.isRunning = false
+                                command.currentExecutionId = null
+                                reject(new Error(response.error || 'Unknown error'))
+                            } else if (response.type === 'stdout' || response.type === 'stderr') {
+                                if (!command.output) command.output = ''
+                                command.output += response.data || ''
+                            }
+                        }
+                    }
+
+                    command.worker.postMessage({
+                        type: 'execute',
+                        id: executionId,
+                        args,
+                        filesystem: this.fs,
+                        currentPath: this.currentPath
+                    })
+                })
+            }
+
+            handleCommandResponse(response, command) {
+                if (command.responseHandler) {
+                    command.responseHandler(response)
+                }
+            }
+
+            parseCommand(input) {
+                const parts = []
+                let current = ''
+                let inQuotes = false
+                let quoteChar = ''
+
+                for (let i = 0; i < input.length; i++) {
+                    const char = input[i]
+                    
+                    if ((char === '"' || char === "'") && !inQuotes) {
+                        inQuotes = true
+                        quoteChar = char
+                    } else if (char === quoteChar && inQuotes) {
+                        inQuotes = false
+                        quoteChar = ''
+                    } else if (char === ' ' && !inQuotes) {
+                        if (current) {
+                            parts.push(current)
+                            current = ''
+                        }
+                    } else {
+                        current += char
+                    }
+                }
+
+                if (current) {
+                    parts.push(current)
+                }
+
+                return parts
+            }
+
+            showHelp() {
+                const commandList = Array.from(this.commands.values()).map(cmd => `  ${cmd.name.padEnd(12)} - ${cmd.description}`).join('\n')
+                
+                const helpText = `Available commands:
+${commandList}
+
+Special commands:
+  clear                 - Clear screen
+  help                  - Show this help
+  history               - Show command history
+  commands              - List installed commands
+  exit/quit             - Exit shell
+`
+                return { output: helpText, exitCode: 0 }
+            }
+
+            showCommands() {
+                const commandList = Array.from(this.commands.values()).map(cmd => 
+                    `${cmd.name.padEnd(12)} ${cmd.isRunning ? '[RUNNING]' : '[READY]'} - ${cmd.description}`
+                ).join('\n')
+                
+                return { output: commandList + '\n', exitCode: 0 }
+            }
+
+            showHistory() {
+                if (this.history.length === 0) {
+                    return { output: 'No commands in history\n', exitCode: 0 }
+                }
+
+                const historyText = this.history
+                    .map((cmd, index) => `${(index + 1).toString().padStart(4)}  ${cmd}`)
+                    .join('\n') + '\n'
+
+                return { output: historyText, exitCode: 0 }
+            }
+
+            terminateCommand(name) {
+                const command = this.commands.get(name)
+                if (command) {
+                    command.worker.terminate()
+                    this.commands.delete(name)
+                    return true
+                }
+                return false
+            }
+
+            terminateAllCommands() {
+                for (const [name, command] of this.commands) {
+                    command.worker.terminate()
+                }
+                this.commands.clear()
+            }
+
+            getPrompt() {
+                const shortPath = this.currentPath === '/home/user' ? '~' : 
+                                 this.currentPath.startsWith('/home/user/') ? '~' + this.currentPath.substring(10) :
+                                 this.currentPath
+                
+                return `user@fake-terminal:${shortPath}$ `
+            }
+        }
+
+        // Command implementations as WebWorker code
+        const echoWorkerCode = `
+class EchoCommand {
+  constructor() {
+    self.onmessage = (event) => {
+      const message = event.data
+      if (message.type === 'execute') {
+        const args = message.args || []
+        const text = args.join(' ')
+        self.postMessage({ type: 'stdout', id: message.id, data: text + '\\n' })
+        self.postMessage({ type: 'exit', id: message.id, exitCode: 0 })
+      }
+    }
+  }
+}
+new EchoCommand()
+`
+
+        const cdWorkerCode = `
+class CdCommand {
+  constructor() {
+    self.onmessage = (event) => {
+      const message = event.data
+      if (message.type === 'execute') {
+        const args = message.args || []
+        const targetPath = args.length > 0 ? args[0] : '/home/user'
+        const currentPath = message.currentPath || '/'
+        
+        const absolutePath = this.getAbsolutePath(targetPath, currentPath)
+        
+        if (!this.pathExists(message.filesystem, absolutePath)) {
+          self.postMessage({ type: 'stderr', id: message.id, data: \`cd: \${targetPath}: No such file or directory\\n\` })
+          self.postMessage({ type: 'exit', id: message.id, exitCode: 1 })
+          return
+        }
+
+        if (!this.isDirectory(message.filesystem, absolutePath)) {
+          self.postMessage({ type: 'stderr', id: message.id, data: \`cd: \${targetPath}: Not a directory\\n\` })
+          self.postMessage({ type: 'exit', id: message.id, exitCode: 1 })
+          return
+        }
+
+        // Update current path
+        if (message.filesystem.setCurrentPath) {
+          message.filesystem.setCurrentPath(absolutePath)
+        }
+
+        self.postMessage({ type: 'exit', id: message.id, exitCode: 0 })
+      }
+    }
+  }
+
+  getAbsolutePath(path, currentPath) {
+    if (path.startsWith('/')) return path
+    const parts = currentPath.split('/').filter(part => part !== '')
+    const pathParts = path.split('/').filter(part => part !== '')
+    for (const part of pathParts) {
+      if (part === '..') parts.pop()
+      else if (part !== '.') parts.push(part)
+    }
+    return '/' + parts.join('/')
+  }
+
+  pathExists(filesystem, path) {
+    if (path === '/') return true
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return false
+      current = current.children.get(part)
+    }
+    return true
+  }
+
+  isDirectory(filesystem, path) {
+    if (path === '/') return true
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return false
+      current = current.children.get(part)
+    }
+    return current && current.type === 'directory'
+  }
+}
+new CdCommand()
+`
+
+        const lsWorkerCode = `
+class LsCommand {
+  constructor() {
+    self.onmessage = (event) => {
+      const message = event.data
+      if (message.type === 'execute') {
+        const args = message.args || []
+        const currentPath = message.currentPath || '/'
+        
+        const options = this.parseOptions(args)
+        const paths = args.filter(arg => !arg.startsWith('-'))
+        if (paths.length === 0) paths.push('.')
+
+        const results = []
+        let hasError = false
+
+        for (const path of paths) {
+          const absolutePath = this.getAbsolutePath(path, currentPath)
+          
+          if (!this.pathExists(message.filesystem, absolutePath)) {
+            results.push(\`ls: cannot access '\${path}': No such file or directory\\n\`)
+            hasError = true
+            continue
+          }
+
+          const entries = this.listDirectory(message.filesystem, absolutePath)
+          if (!entries) {
+            results.push(\`ls: cannot access '\${path}': Permission denied\\n\`)
+            hasError = true
+            continue
+          }
+
+          const names = entries.map(entry => entry.name)
+          if (options.all) {
+            names.unshift('.')
+            names.unshift('..')
+          }
+          names.sort()
+
+          if (options.long) {
+            for (const name of names) {
+              const entry = entries.find(e => e.name === name)
+              if (entry) {
+                results.push(\`-rw-r--r-- 1 user user 0 Jan  1 00:00 \${name}\\n\`)
+              }
+            }
+          } else {
+            results.push(names.join('  ') + '\\n')
+          }
+        }
+
+        const output = results.join('')
+        if (output) {
+          self.postMessage({ type: 'stdout', id: message.id, data: output })
+        }
+        self.postMessage({ type: 'exit', id: message.id, exitCode: hasError ? 1 : 0 })
+      }
+    }
+  }
+
+  parseOptions(args) {
+    return { long: args.includes('-l'), all: args.includes('-a') }
+  }
+
+  getAbsolutePath(path, currentPath) {
+    if (path.startsWith('/')) return path
+    const parts = currentPath.split('/').filter(part => part !== '')
+    const pathParts = path.split('/').filter(part => part !== '')
+    for (const part of pathParts) {
+      if (part === '..') parts.pop()
+      else if (part !== '.') parts.push(part)
+    }
+    return '/' + parts.join('/')
+  }
+
+  pathExists(filesystem, path) {
+    if (path === '/') return true
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return false
+      current = current.children.get(part)
+    }
+    return true
+  }
+
+  listDirectory(filesystem, path) {
+    const node = this.getNode(filesystem, path)
+    if (!node || node.type !== 'directory' || !node.children) return null
+    return Array.from(node.children.entries()).map(([name, node]) => ({ name, node }))
+  }
+
+  getNode(filesystem, path) {
+    if (path === '/') return filesystem.root
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return null
+      current = current.children.get(part)
+    }
+    return current
+  }
+}
+new LsCommand()
+`
+
+        const catWorkerCode = `
+class CatCommand {
+  constructor() {
+    self.onmessage = (event) => {
+      const message = event.data
+      if (message.type === 'execute') {
+        const args = message.args || []
+        const currentPath = message.currentPath || '/'
+        
+        if (args.length === 0) {
+          self.postMessage({ type: 'stderr', id: message.id, data: 'cat: missing file operand\\n' })
+          self.postMessage({ type: 'exit', id: message.id, exitCode: 1 })
+          return
+        }
+
+        const results = []
+        let hasError = false
+
+        for (const filePath of args) {
+          const absolutePath = this.getAbsolutePath(filePath, currentPath)
+          
+          if (!this.pathExists(message.filesystem, absolutePath)) {
+            results.push(\`cat: \${filePath}: No such file or directory\`)
+            hasError = true
+            continue
+          }
+
+          if (this.isDirectory(message.filesystem, absolutePath)) {
+            results.push(\`cat: \${filePath}: Is a directory\`)
+            hasError = true
+            continue
+          }
+
+          const content = this.readFile(message.filesystem, absolutePath)
+          if (content !== null) {
+            results.push(content)
+          } else {
+            results.push(\`cat: \${filePath}: Permission denied\`)
+            hasError = true
+          }
+        }
+
+        const output = results.join('')
+        if (output) {
+          self.postMessage({ type: 'stdout', id: message.id, data: output })
+        }
+        self.postMessage({ type: 'exit', id: message.id, exitCode: hasError ? 1 : 0 })
+      }
+    }
+  }
+
+  getAbsolutePath(path, currentPath) {
+    if (path.startsWith('/')) return path
+    const parts = currentPath.split('/').filter(part => part !== '')
+    const pathParts = path.split('/').filter(part => part !== '')
+    for (const part of pathParts) {
+      if (part === '..') parts.pop()
+      else if (part !== '.') parts.push(part)
+    }
+    return '/' + parts.join('/')
+  }
+
+  pathExists(filesystem, path) {
+    if (path === '/') return true
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return false
+      current = current.children.get(part)
+    }
+    return true
+  }
+
+  isDirectory(filesystem, path) {
+    const node = this.getNode(filesystem, path)
+    return node ? node.type === 'directory' : false
+  }
+
+  getNode(filesystem, path) {
+    if (path === '/') return filesystem.root
+    const parts = path.split('/').filter(part => part !== '')
+    let current = filesystem.root
+    for (const part of parts) {
+      if (!current.children || !current.children.has(part)) return null
+      current = current.children.get(part)
+    }
+    return current
+  }
+
+  readFile(filesystem, path) {
+    const node = this.getNode(filesystem, path)
+    return node && node.type === 'file' ? node.content || '' : null
+  }
+}
+new CatCommand()
+`
+
+        const pwdWorkerCode = `
+class PwdCommand {
+  constructor() {
+    self.onmessage = (event) => {
+      const message = event.data
+      if (message.type === 'execute') {
+        const currentPath = message.currentPath || '/'
+        self.postMessage({ type: 'stdout', id: message.id, data: currentPath + '\\n' })
+        self.postMessage({ type: 'exit', id: message.id, exitCode: 0 })
+      }
+    }
+  }
+}
+new PwdCommand()
+`
+
+        // Initialize the shell
+        const shell = new WebShellWorker()
+        const output = document.getElementById('output')
+        const input = document.getElementById('input')
+        const prompt = document.getElementById('prompt')
+        const status = document.getElementById('status')
+
+        async function initializeShell() {
+            // Install commands
+            await shell.installCommand('echo', echoWorkerCode, 'Display text')
+            await shell.installCommand('cd', cdWorkerCode, 'Change directory')
+            await shell.installCommand('ls', lsWorkerCode, 'List directory contents')
+            await shell.installCommand('cat', catWorkerCode, 'Display file contents')
+            await shell.installCommand('pwd', pwdWorkerCode, 'Print working directory')
+
+            shell.isLoading = false
+            status.textContent = 'Ready'
+            input.disabled = false
+            input.focus()
+            
+            addOutput('Web Shell with WebWorkers initialized!\n')
+            addOutput('Each command runs in a separate WebWorker for isolation.\n')
+            addOutput('Type "help" to see available commands.\n\n')
+            updatePrompt()
+        }
+
+        function updatePrompt() {
+            prompt.textContent = shell.getPrompt()
+        }
+
+        function addOutput(text) {
+            output.textContent += text
+            output.scrollTop = output.scrollHeight
+        }
+
+        function clearOutput() {
+            output.textContent = ''
+        }
+
+        async function executeCommand() {
+            const command = input.value.trim()
+            if (command === '') return
+
+            addOutput(shell.getPrompt() + command + '\n')
+            input.value = ''
+
+            try {
+                const result = await shell.executeCommand(command)
+                
+                if (result.output.includes('\x1b[2J')) {
+                    clearOutput()
+                } else {
+                    addOutput(result.output)
+                }
+
+                updatePrompt()
+                status.textContent = result.exitCode === 0 ? 'Success' : 'Error'
+            } catch (error) {
+                addOutput(`Error: ${error.message}\n`)
+                status.textContent = 'Error'
+            }
+            
+            input.focus()
+        }
+
+        // Event listeners
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand()
+            }
+        })
+
+        // Initialize
+        initializeShell()
+    </script>
+</body>
+</html>
+

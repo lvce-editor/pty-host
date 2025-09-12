@@ -1,0 +1,10 @@
+{
+  "name": "webshell-rm",
+  "version": "1.0.0",
+  "description": "Remove files command for WebShell",
+  "main": "rm.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "rm", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
