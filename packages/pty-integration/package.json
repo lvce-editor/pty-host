@@ -12,7 +12,7 @@
   "jest": {
     "injectGlobals": false,
     "testMatch": [
-      "<rootDir>/tests/**/*.test.ts"
+      "<rootDir>/test/**/*.test.ts"
     ],
     "extensionsToTreatAsEsm": [
       ".ts"
