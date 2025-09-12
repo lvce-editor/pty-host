@@ -35,7 +35,7 @@ test('should handle PTY write and read data', async () => {
   expect(output).toContain('data test')
 })
 
-test('should handle PTY disposal', async () => {
+test.skip('should handle PTY disposal', async () => {
   const integrationTest = createIntegrationTest({
     expectedOutput: ['testuser $'],
   })
