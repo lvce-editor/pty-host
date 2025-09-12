@@ -1,5 +1,5 @@
 import { test, expect } from '@jest/globals'
-import { createIntegrationTest } from '../src/IntegrationTestFramework.js'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 
 test('should create PTY with mock shell', async () => {
   const integrationTest = createIntegrationTest({

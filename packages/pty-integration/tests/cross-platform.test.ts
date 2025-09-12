@@ -1,5 +1,5 @@
 import { test, expect } from '@jest/globals'
-import { createIntegrationTest } from '../src/IntegrationTestFramework.js'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 import { platform } from 'node:os'
 
 test('should work on all platforms', async () => {
