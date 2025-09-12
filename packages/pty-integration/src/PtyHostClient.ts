@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws'
 // import { createServer } from 'http' // Not used currently
-import { spawn } from 'child_process'
+import { fork, spawn } from 'child_process'
 import { join } from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
@@ -58,16 +58,12 @@ export class PtyHostClient {
   async start(): Promise<void> {
     // Start pty-host process first
     const ptyHostPath = join(__dirname, '../../pty-host/src/ptyHostMain.ts')
-    this.ptyHostProcess = spawn('node', [
-      '--loader', 'ts-node/esm',
-      ptyHostPath,
-      '--ipc-type=websocket'
-    ], {
-      stdio: ['pipe', 'pipe', 'pipe']
+    this.ptyHostProcess = fork(ptyHostPath, ['--ipc-type=websocket'], {
+      stdio: ['pipe', 'pipe', 'pipe'],
     })
 
     // Wait a bit for the process to start
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // Create WebSocket connection to pty-host
     // The pty-host should be listening on a port
@@ -133,7 +129,7 @@ export class PtyHostClient {
       jsonrpc: '2.0',
       id,
       method,
-      params
+      params,
     }
 
     return new Promise((resolve, reject) => {
@@ -168,7 +164,7 @@ export class PtyHostClient {
       params.id,
       params.cwd,
       params.command,
-      params.args
+      params.args,
     ])
   }
 
@@ -176,15 +172,12 @@ export class PtyHostClient {
     await this.sendRequest('Terminal.resize', [
       params.id,
       params.columns,
-      params.rows
+      params.rows,
     ])
   }
 
   async writeToTerminal(params: TerminalWriteParams): Promise<void> {
-    await this.sendRequest('Terminal.write', [
-      params.id,
-      params.data
-    ])
+    await this.sendRequest('Terminal.write', [params.id, params.data])
   }
 
   async disposeTerminal(params: TerminalDisposeParams): Promise<void> {
