@@ -1,8 +1,8 @@
 import type { ChildProcess } from 'child_process'
-import { spawn } from 'child_process'
+import { fork } from 'node:child_process'
+import { join } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { createMockShellPath, root } from './MockShellUtils.ts'
-import { join } from 'node:path'
 
 export interface SimpleIntegrationTestOptions {
   command?: string
@@ -34,16 +34,24 @@ export class SimpleIntegrationTestFramework {
 
   private async startPtyHost(): Promise<void> {
     // Start ptyHost with mockshell
-    const mockShellPath = createMockShellPath()
+    // const mockShellPath = createMockShellPath()
     const ptyHostPath = join(root, 'packages/pty-host/src/ptyHostMain.ts')
-    this.ptyHostProcess = spawn(
-      'node',
-      [ptyHostPath, '--ipc-type=node-forked-process'],
+    this.ptyHostProcess = fork(
+      ptyHostPath,
+      ['--ipc-type=node-forked-process'],
       {
         stdio: ['pipe', 'pipe', 'pipe'],
         cwd: this.options.cwd || process.cwd(),
       },
     )
+
+    if (
+      !this.ptyHostProcess ||
+      !this.ptyHostProcess.stdout ||
+      !this.ptyHostProcess.stderr
+    ) {
+      throw new Error(`failed to spawn`)
+    }
 
     // Set up event handlers
     this.ptyHostProcess.stdout.on('data', (data: Buffer) => {
