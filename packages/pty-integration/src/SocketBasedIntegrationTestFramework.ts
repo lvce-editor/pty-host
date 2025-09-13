@@ -53,6 +53,7 @@ export class SocketBasedIntegrationTestFramework {
       this.server.on('upgrade', (request, socket, head) => {
         // Create WebSocket connection using the ws library
         const ws = new WebSocket(null)
+        // @ts-ignore
         ws.setSocket(socket, request, head)
 
         // Store the WebSocket for communication
@@ -114,7 +115,7 @@ export class SocketBasedIntegrationTestFramework {
 
   private handleMessage(message: any): void {
     if (message.jsonrpc === '2.0' && message.method === 'Viewlet.send') {
-      const [terminalId, method, data] = message.params
+      const [, method, data] = message.params
 
       if (method === 'handleData') {
         this.output += data
