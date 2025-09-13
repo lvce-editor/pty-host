@@ -100,7 +100,7 @@ test('should handle different terminal sizes', async () => {
   await integrationTest.write('echo size test\n')
   await integrationTest.waitForOutput('size test')
 
-  integrationTest.dispose()
+  await integrationTest.dispose()
 })
 
 test('should handle different encoding', async () => {
