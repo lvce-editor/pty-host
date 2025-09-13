@@ -1,8 +1,8 @@
 import { test, expect } from '@jest/globals'
-import { createSimpleIntegrationTest } from '../src/SimpleIntegrationTestFramework.ts'
+import { createSocketBasedIntegrationTest } from '../src/SocketBasedIntegrationTestFramework.ts'
 
-test('should start ptyHost and show prompt', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should start ptyHost and show prompt via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     expectedOutput: ['testuser $'],
   })
 
@@ -12,8 +12,8 @@ test('should start ptyHost and show prompt', async () => {
   expect(output).toContain('testuser $')
 })
 
-test('should execute simple command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should execute simple command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo hello world'],
     expectedOutput: ['hello world', 'testuser $'],
   })
@@ -21,8 +21,8 @@ test('should execute simple command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle pwd command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle pwd command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['pwd'],
     expectedOutput: [process.cwd()],
   })
@@ -30,8 +30,8 @@ test('should handle pwd command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle ls command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle ls command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['ls'],
     expectedOutput: ['package.json', 'testuser $'],
   })
@@ -39,8 +39,8 @@ test('should handle ls command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle cd command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle cd command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['cd ..', 'pwd'],
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')],
   })
@@ -48,8 +48,8 @@ test('should handle cd command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle unknown command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle unknown command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['unknown-command'],
     expectedOutput: ['Command not found: unknown-command'],
   })
@@ -57,8 +57,8 @@ test('should handle unknown command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle exit command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle exit command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['exit'],
   })
 
@@ -68,8 +68,8 @@ test('should handle exit command', async () => {
   expect(exitCode).toBe(0)
 })
 
-test('should handle multiple commands in sequence', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle multiple commands in sequence via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo first command', 'echo second command', 'pwd', 'exit'],
     expectedOutput: ['first command', 'second command', process.cwd()],
   })
@@ -77,8 +77,8 @@ test('should handle multiple commands in sequence', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle test-command for verification', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle test-command for verification via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['test-command'],
     expectedOutput: ['test-output'],
   })
@@ -86,8 +86,8 @@ test('should handle test-command for verification', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle terminal resize', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test('should handle terminal resize via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo resize test'],
     expectedOutput: ['resize test'],
   })
@@ -102,8 +102,8 @@ test('should handle terminal resize', async () => {
   await integrationTest.dispose()
 })
 
-test.skip('should handle error command', async () => {
-  const integrationTest = createSimpleIntegrationTest({
+test.skip('should handle error command via socket', async () => {
+  const integrationTest = createSocketBasedIntegrationTest({
     input: ['error-command'],
     expectedOutput: ['Command failed'],
   })

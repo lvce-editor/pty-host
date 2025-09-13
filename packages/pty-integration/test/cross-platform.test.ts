@@ -1,7 +1,7 @@
 import { test, expect } from '@jest/globals'
-import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 import { platform } from 'node:os'
 import { setTimeout } from 'node:timers/promises'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 
 test('should work on all platforms', async () => {
   const integrationTest = createIntegrationTest({

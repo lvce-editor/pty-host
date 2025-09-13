@@ -1,7 +1,7 @@
 import { test, expect } from '@jest/globals'
-import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 import * as process from 'node:process'
 import { setTimeout } from 'node:timers/promises'
+import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 
 test('should create PTY with mock shell', async () => {
   const integrationTest = createIntegrationTest({
@@ -101,4 +101,4 @@ test.skip('should handle PTY with custom command arguments', async () => {
 
   // Clean up manually since this process doesn't exit naturally
   integrationTest.dispose()
-}, 10000) // Increase timeout to 10 seconds
+}, 10_000) // Increase timeout to 10 seconds

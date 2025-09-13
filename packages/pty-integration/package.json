@@ -29,6 +29,11 @@
       ]
     }
   },
+  "dependencies": {
+    "@lvce-editor/rpc": "^4.19.0",
+    "@types/ws": "^8.18.1",
+    "ws": "^8.18.3"
+  },
   "devDependencies": {
     "@jest/globals": "^30.1.2",
     "@types/node": "^22.18.2",

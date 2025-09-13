@@ -1,8 +1,9 @@
+import type { ChildProcess } from 'child_process';
 import { spawn } from 'child_process'
 import { setTimeout } from 'node:timers/promises'
 import { createMockShellPath } from './MockShellUtils.ts'
 
-export interface IntegrationTestOptions {
+export interface SimpleIntegrationTestOptions {
   command?: string
   args?: string[]
   cwd?: string
@@ -12,45 +13,77 @@ export interface IntegrationTestOptions {
   input?: string[]
 }
 
-export class IntegrationTestFramework {
-  private ptyHostProcess: any = null
+export class SimpleIntegrationTestFramework {
+  private ptyHostProcess: ChildProcess | null = null
   private output: string = ''
   private error: string = ''
   private ready: boolean = false
   private isExited: boolean = false
   private exitCode: number | null = null
-  private mockShellProcess: any = null
 
-  constructor(private options: IntegrationTestOptions) {}
+  constructor(private options: SimpleIntegrationTestOptions) {}
 
   async start(): Promise<void> {
-    // Start the mock shell process directly
+    // Start ptyHost process
+    await this.startPtyHost()
+
+    // Wait for terminal to be ready
+    await this.waitForReady()
+  }
+
+  private async startPtyHost(): Promise<void> {
+    // Start ptyHost with mockshell
     const mockShellPath = createMockShellPath()
-    this.mockShellProcess = spawn('node', [mockShellPath], {
+    
+    this.ptyHostProcess = spawn('node', [
+      'packages/pty-host/src/ptyHostMain.ts',
+      '--ipc-type=node-forked-process'
+    ], {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: this.options.cwd || process.cwd(),
     })
 
     // Set up event handlers
-    this.mockShellProcess.stdout.on('data', (data: Buffer) => {
-      this.output += data.toString()
+    this.ptyHostProcess.stdout.on('data', (data: Buffer) => {
+      const output = data.toString()
+      console.log('STDOUT:', output)
+      this.output += output
       // Check if we've received the initial prompt
-      if (data.toString().includes('$ ') && !this.ready) {
+      if (output.includes('$ ') && !this.ready) {
         this.ready = true
       }
     })
 
-    this.mockShellProcess.stderr.on('data', (data: Buffer) => {
-      this.error += data.toString()
+    this.ptyHostProcess.stderr.on('data', (data: Buffer) => {
+      const error = data.toString()
+      console.log('STDERR:', error)
+      this.error += error
     })
 
-    this.mockShellProcess.on('exit', (code: number) => {
+    this.ptyHostProcess.on('exit', (code: number) => {
       this.isExited = true
       this.exitCode = code
     })
 
-    // Wait for terminal to be ready
-    await this.waitForReady()
+    // Send command to create terminal with mockshell
+    await this.createTerminal()
+  }
+
+  private async createTerminal(): Promise<void> {
+    const mockShellPath = createMockShellPath()
+    
+    // Send JSON-RPC message to create terminal
+    const message = {
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'Terminal.create',
+      params: [1, process.cwd(), 'node', [mockShellPath]]
+    }
+
+    console.log('Sending message:', JSON.stringify(message))
+    if (this.ptyHostProcess && this.ptyHostProcess.stdin) {
+      this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
+    }
   }
 
   private async waitForReady(timeout: number = 5000): Promise<void> {
@@ -69,8 +102,50 @@ export class IntegrationTestFramework {
       throw new Error('Terminal has exited')
     }
 
-    if (this.mockShellProcess && this.mockShellProcess.stdin) {
-      this.mockShellProcess.stdin.write(input)
+    // Send JSON-RPC message to write to terminal
+    const message = {
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'Terminal.write',
+      params: [1, input]
+    }
+
+    if (this.ptyHostProcess && this.ptyHostProcess.stdin) {
+      this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
+    }
+  }
+
+  async resize(columns: number, rows: number): Promise<void> {
+    const message = {
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'Terminal.resize',
+      params: [1, columns, rows]
+    }
+
+    if (this.ptyHostProcess && this.ptyHostProcess.stdin) {
+      this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
+    }
+  }
+
+  async dispose(): Promise<void> {
+    if (this.ptyHostProcess && !this.isExited) {
+      // Send dispose message
+      const message = {
+        jsonrpc: '2.0',
+        id: Date.now(),
+        method: 'Terminal.dispose',
+        params: [1]
+      }
+
+      if (this.ptyHostProcess.stdin) {
+        this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
+      }
+
+      // Wait a bit for cleanup
+      await setTimeout(100)
+      
+      this.ptyHostProcess.kill()
     }
   }
 
@@ -122,15 +197,6 @@ export class IntegrationTestFramework {
     return this.isExited
   }
 
-  async dispose(): Promise<void> {
-    if (this.mockShellProcess && !this.isExited) {
-      this.mockShellProcess.kill()
-    }
-    if (this.ptyHostProcess && !this.isExited) {
-      this.ptyHostProcess.kill()
-    }
-  }
-
   async runTest(): Promise<void> {
     try {
       await this.start()
@@ -173,12 +239,15 @@ export class IntegrationTestFramework {
   }
 }
 
-export function createIntegrationTest(
-  options: Partial<IntegrationTestOptions>,
-): IntegrationTestFramework {
-  const defaultOptions: IntegrationTestOptions = {
+export function createSimpleIntegrationTest(
+  options: Partial<SimpleIntegrationTestOptions>,
+): SimpleIntegrationTestFramework {
+  const defaultOptions: SimpleIntegrationTestOptions = {
     timeout: 10_000,
   }
 
-  return new IntegrationTestFramework({ ...defaultOptions, ...options })
+  return new SimpleIntegrationTestFramework({
+    ...defaultOptions,
+    ...options,
+  })
 }
