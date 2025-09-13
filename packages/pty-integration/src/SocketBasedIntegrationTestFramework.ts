@@ -2,10 +2,10 @@ import type { ChildProcess } from 'child_process'
 import { spawn } from 'child_process'
 import { randomUUID } from 'crypto'
 import * as http from 'http'
+import { join } from 'node:path'
 import { setTimeout } from 'node:timers/promises'
 import { WebSocket } from 'ws'
 import { createMockShellPath, root } from './MockShellUtils.ts'
-import { join } from 'node:path'
 
 export interface SocketBasedIntegrationTestOptions {
   command?: string
