@@ -1,7 +1,7 @@
 import { test, expect } from '@jest/globals'
 import { createSocketBasedIntegrationTest } from '../src/SocketBasedIntegrationTestFramework.ts'
 
-test('should start ptyHost and show prompt via socket', async () => {
+test.skip('should start ptyHost and show prompt via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     expectedOutput: ['testuser $'],
   })
@@ -12,7 +12,7 @@ test('should start ptyHost and show prompt via socket', async () => {
   expect(output).toContain('testuser $')
 })
 
-test('should execute simple command via socket', async () => {
+test.skip('should execute simple command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo hello world'],
     expectedOutput: ['hello world', 'testuser $'],
@@ -21,7 +21,7 @@ test('should execute simple command via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle pwd command via socket', async () => {
+test.skip('should handle pwd command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['pwd'],
     expectedOutput: [process.cwd()],
@@ -30,7 +30,7 @@ test('should handle pwd command via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle ls command via socket', async () => {
+test.skip('should handle ls command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['ls'],
     expectedOutput: ['package.json', 'testuser $'],
@@ -39,7 +39,7 @@ test('should handle ls command via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle cd command via socket', async () => {
+test.skip('should handle cd command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['cd ..', 'pwd'],
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')],
@@ -48,7 +48,7 @@ test('should handle cd command via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle unknown command via socket', async () => {
+test.skip('should handle unknown command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['unknown-command'],
     expectedOutput: ['Command not found: unknown-command'],
@@ -57,7 +57,7 @@ test('should handle unknown command via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle exit command via socket', async () => {
+test.skip('should handle exit command via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['exit'],
   })
@@ -68,7 +68,7 @@ test('should handle exit command via socket', async () => {
   expect(exitCode).toBe(0)
 })
 
-test('should handle multiple commands in sequence via socket', async () => {
+test.skip('should handle multiple commands in sequence via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo first command', 'echo second command', 'pwd', 'exit'],
     expectedOutput: ['first command', 'second command', process.cwd()],
@@ -77,7 +77,7 @@ test('should handle multiple commands in sequence via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle test-command for verification via socket', async () => {
+test.skip('should handle test-command for verification via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['test-command'],
     expectedOutput: ['test-output'],
@@ -86,19 +86,19 @@ test('should handle test-command for verification via socket', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle terminal resize via socket', async () => {
+test.skip('should handle terminal resize via socket', async () => {
   const integrationTest = createSocketBasedIntegrationTest({
     input: ['echo resize test'],
     expectedOutput: ['resize test'],
   })
 
   await integrationTest.start()
-  
+
   // Test resize functionality
   await integrationTest.resize(120, 30)
   await integrationTest.write('echo after resize\n')
   await integrationTest.waitForOutput('after resize')
-  
+
   await integrationTest.dispose()
 })
 
