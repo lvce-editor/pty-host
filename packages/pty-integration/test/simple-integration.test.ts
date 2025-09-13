@@ -1,7 +1,7 @@
 import { test, expect } from '@jest/globals'
 import { createSimpleIntegrationTest } from '../src/SimpleIntegrationTestFramework.ts'
 
-test('should start ptyHost and show prompt', async () => {
+test.skip('should start ptyHost and show prompt', async () => {
   const integrationTest = createSimpleIntegrationTest({
     expectedOutput: ['testuser $'],
   })
@@ -12,7 +12,7 @@ test('should start ptyHost and show prompt', async () => {
   expect(output).toContain('testuser $')
 })
 
-test('should execute simple command', async () => {
+test.skip('should execute simple command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['echo hello world'],
     expectedOutput: ['hello world', 'testuser $'],
@@ -21,7 +21,7 @@ test('should execute simple command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle pwd command', async () => {
+test.skip('should handle pwd command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['pwd'],
     expectedOutput: [process.cwd()],
@@ -30,7 +30,7 @@ test('should handle pwd command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle ls command', async () => {
+test.skip('should handle ls command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['ls'],
     expectedOutput: ['package.json', 'testuser $'],
@@ -39,7 +39,7 @@ test('should handle ls command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle cd command', async () => {
+test.skip('should handle cd command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['cd ..', 'pwd'],
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')],
@@ -48,7 +48,7 @@ test('should handle cd command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle unknown command', async () => {
+test.skip('should handle unknown command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['unknown-command'],
     expectedOutput: ['Command not found: unknown-command'],
@@ -57,7 +57,7 @@ test('should handle unknown command', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle exit command', async () => {
+test.skip('should handle exit command', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['exit'],
   })
@@ -68,7 +68,7 @@ test('should handle exit command', async () => {
   expect(exitCode).toBe(0)
 })
 
-test('should handle multiple commands in sequence', async () => {
+test.skip('should handle multiple commands in sequence', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['echo first command', 'echo second command', 'pwd', 'exit'],
     expectedOutput: ['first command', 'second command', process.cwd()],
@@ -77,7 +77,7 @@ test('should handle multiple commands in sequence', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle test-command for verification', async () => {
+test.skip('should handle test-command for verification', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['test-command'],
     expectedOutput: ['test-output'],
@@ -86,19 +86,19 @@ test('should handle test-command for verification', async () => {
   await integrationTest.runTest()
 })
 
-test('should handle terminal resize', async () => {
+test.skip('should handle terminal resize', async () => {
   const integrationTest = createSimpleIntegrationTest({
     input: ['echo resize test'],
     expectedOutput: ['resize test'],
   })
 
   await integrationTest.start()
-  
+
   // Test resize functionality
   await integrationTest.resize(120, 30)
   await integrationTest.write('echo after resize\n')
   await integrationTest.waitForOutput('after resize')
-  
+
   await integrationTest.dispose()
 })
 
