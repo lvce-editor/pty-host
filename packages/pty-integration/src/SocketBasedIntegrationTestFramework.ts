@@ -1,10 +1,11 @@
-import type { ChildProcess } from 'child_process';
+import type { ChildProcess } from 'child_process'
 import { spawn } from 'child_process'
 import { randomUUID } from 'crypto'
 import * as http from 'http'
 import { setTimeout } from 'node:timers/promises'
 import { WebSocket } from 'ws'
-import { createMockShellPath } from './MockShellUtils.ts'
+import { createMockShellPath, root } from './MockShellUtils.ts'
+import { join } from 'node:path'
 
 export interface SocketBasedIntegrationTestOptions {
   command?: string
@@ -48,15 +49,15 @@ export class SocketBasedIntegrationTestFramework {
   private async startWebSocketServer(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server = http.createServer()
-      
+
       this.server.on('upgrade', (request, socket, head) => {
         // Create WebSocket connection using the ws library
         const ws = new WebSocket(null)
         ws.setSocket(socket, request, head)
-        
+
         // Store the WebSocket for communication
         this.websocket = ws
-        
+
         ws.on('message', (data: Buffer) => {
           try {
             const message = JSON.parse(data.toString())
@@ -89,14 +90,20 @@ export class SocketBasedIntegrationTestFramework {
 
   private async startPtyHost(): Promise<void> {
     // Start ptyHost with WebSocket IPC and connect it to our server
-    this.ptyHostProcess = spawn('node', [
-      'packages/pty-host/src/ptyHostMain.ts',
-      '--ipc-type=websocket',
-      `--websocket-url=ws://localhost:${this.port}`
-    ], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: process.cwd(),
-    })
+    const ptyHostPath = join(root, 'packages/pty-host/src/ptyHostMain.ts')
+
+    this.ptyHostProcess = spawn(
+      'node',
+      [
+        ptyHostPath,
+        '--ipc-type=websocket',
+        `--websocket-url=ws://localhost:${this.port}`,
+      ],
+      {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: process.cwd(),
+      },
+    )
 
     // Wait a bit for ptyHost to connect
     await setTimeout(1000)

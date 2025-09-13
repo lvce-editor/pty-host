@@ -1,7 +1,8 @@
-import type { ChildProcess } from 'child_process';
+import type { ChildProcess } from 'child_process'
 import { spawn } from 'child_process'
 import { setTimeout } from 'node:timers/promises'
-import { createMockShellPath } from './MockShellUtils.ts'
+import { createMockShellPath, root } from './MockShellUtils.ts'
+import { join } from 'node:path'
 
 export interface SimpleIntegrationTestOptions {
   command?: string
@@ -34,14 +35,15 @@ export class SimpleIntegrationTestFramework {
   private async startPtyHost(): Promise<void> {
     // Start ptyHost with mockshell
     const mockShellPath = createMockShellPath()
-    
-    this.ptyHostProcess = spawn('node', [
-      'packages/pty-host/src/ptyHostMain.ts',
-      '--ipc-type=node-forked-process'
-    ], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: this.options.cwd || process.cwd(),
-    })
+    const ptyHostPath = join(root, 'packages/pty-host/src/ptyHostMain.ts')
+    this.ptyHostProcess = spawn(
+      'node',
+      [ptyHostPath, '--ipc-type=node-forked-process'],
+      {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        cwd: this.options.cwd || process.cwd(),
+      },
+    )
 
     // Set up event handlers
     this.ptyHostProcess.stdout.on('data', (data: Buffer) => {
@@ -71,13 +73,13 @@ export class SimpleIntegrationTestFramework {
 
   private async createTerminal(): Promise<void> {
     const mockShellPath = createMockShellPath()
-    
+
     // Send JSON-RPC message to create terminal
     const message = {
       jsonrpc: '2.0',
       id: 1,
       method: 'Terminal.create',
-      params: [1, process.cwd(), 'node', [mockShellPath]]
+      params: [1, process.cwd(), 'node', [mockShellPath]],
     }
 
     console.log('Sending message:', JSON.stringify(message))
@@ -107,7 +109,7 @@ export class SimpleIntegrationTestFramework {
       jsonrpc: '2.0',
       id: Date.now(),
       method: 'Terminal.write',
-      params: [1, input]
+      params: [1, input],
     }
 
     if (this.ptyHostProcess && this.ptyHostProcess.stdin) {
@@ -120,7 +122,7 @@ export class SimpleIntegrationTestFramework {
       jsonrpc: '2.0',
       id: Date.now(),
       method: 'Terminal.resize',
-      params: [1, columns, rows]
+      params: [1, columns, rows],
     }
 
     if (this.ptyHostProcess && this.ptyHostProcess.stdin) {
@@ -135,7 +137,7 @@ export class SimpleIntegrationTestFramework {
         jsonrpc: '2.0',
         id: Date.now(),
         method: 'Terminal.dispose',
-        params: [1]
+        params: [1],
       }
 
       if (this.ptyHostProcess.stdin) {
@@ -144,7 +146,7 @@ export class SimpleIntegrationTestFramework {
 
       // Wait a bit for cleanup
       await setTimeout(100)
-      
+
       this.ptyHostProcess.kill()
     }
   }
