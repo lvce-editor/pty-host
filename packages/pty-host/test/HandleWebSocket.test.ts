@@ -42,9 +42,8 @@ const waitForFirstRequest = async (server) => {
 }
 
 const waitForWebSocketMessage = async (webSocket: any) => {
-  const responsePromise = new Promise<any>((resolve) => {
-    webSocket.addEventListener('message', resolve, { once: true })
-  })
+  const { promise: responsePromise, resolve } = Promise.withResolvers<any>()
+  webSocket.addEventListener('message', resolve, { once: true })
   const nextResponse = await responsePromise
   // @ts-ignore
   const nextResponseString = nextResponse.data.toString()
