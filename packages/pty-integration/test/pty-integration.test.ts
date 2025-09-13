@@ -48,7 +48,7 @@ test.skip('should handle PTY disposal', async () => {
   expect(integrationTest.isReady()).toBe(true)
 
   // Dispose and verify it's cleaned up
-  integrationTest.dispose()
+  await integrationTest.dispose()
 
   // Wait a bit for cleanup
   await setTimeout(100)
@@ -100,5 +100,5 @@ test.skip('should handle PTY with custom command arguments', async () => {
   await integrationTest.runTest()
 
   // Clean up manually since this process doesn't exit naturally
-  integrationTest.dispose()
+  await integrationTest.dispose()
 }, 10_000) // Increase timeout to 10 seconds
