@@ -1,0 +1,11 @@
+{
+  "name": "webshell-ls",
+  "version": "1.0.0",
+  "description": "List directory command for WebShell",
+  "main": "ls.js",
+  "type": "module",
+  "keywords": ["webshell", "command", "ls", "webworker"],
+  "author": "",
+  "license": "MIT"
+}
+
