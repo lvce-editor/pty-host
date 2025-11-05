@@ -2,6 +2,7 @@
   "name": "@lvce-editor/pty-integration",
   "version": "0.0.0-dev",
   "description": "Integration tests for PTY Host",
+  "license": "MIT",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
