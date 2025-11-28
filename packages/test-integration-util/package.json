@@ -9,8 +9,8 @@
   "devDependencies": {
     "@lvce-editor/assert": "^1.4.0",
     "@lvce-editor/command": "^2.0.0",
-    "@lvce-editor/fuzzy-search": "^1.1.0",
-    "@lvce-editor/ipc": "^14.5.0",
+    "@lvce-editor/fuzzy-search": "^2.0.1",
+    "@lvce-editor/ipc": "^14.6.0",
     "@lvce-editor/json-rpc": "^7.0.0",
     "@lvce-editor/verror": "^1.7.0",
     "@types/node": "^24.2.0"
