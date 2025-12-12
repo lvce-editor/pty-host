@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Shell Demo</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #569cd6;
+        }
+
+        .terminal-container {
+            flex: 1;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #000;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.4;
+            min-height: 200px;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .prompt {
+            color: #4ec9b0;
+            margin-right: 8px;
+        }
+
+        .input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #2d2d30;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .help-text {
+            background-color: #2d2d30;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .help-text h3 {
+            margin-top: 0;
+            color: #4ec9b0;
+        }
+
+        .help-text code {
+            background-color: #1e1e1e;
+            padding: 2px 4px;
+            border-radius: 2px;
+            color: #dcdcaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Web Shell Demo</h1>
+            <p>Interactive JavaScript-based terminal with fake filesystem</p>
+        </div>
+
+        <div class="help-text">
+            <h3>Available Commands:</h3>
+            <p>
+                <code>ls</code> - List files |
+                <code>cat &lt;file&gt;</code> - Read file |
+                <code>echo &lt;text&gt;</code> - Print text |
+                <code>cd &lt;dir&gt;</code> - Change directory |
+                <code>pwd</code> - Show current path |
+                <code>mkdir &lt;dir&gt;</code> - Create directory |
+                <code>touch &lt;file&gt;</code> - Create file |
+                <code>grep &lt;pattern&gt; &lt;file&gt;</code> - Search in file |
+                <code>help</code> - Show help |
+                <code>clear</code> - Clear screen |
+                <code>history</code> - Show history
+            </p>
+        </div>
+
+        <div class="terminal-container">
+            <div class="status" id="status">Ready</div>
+            <div class="terminal-output" id="output"></div>
+            <div class="terminal-input">
+                <span class="prompt" id="prompt">user@fake-terminal:~$ </span>
+                <input type="text" class="input-field" id="input" placeholder="Type a command..." autofocus>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // This would normally import from the built package
+        // For demo purposes, we'll include the shell logic inline
+
+        class FakeFileSystem {
+            constructor() {
+                this.currentPath = '/'
+                this.root = this.createRoot()
+                this.initializeDefaultStructure()
+            }
+
+            createRoot() {
+                return {
+                    type: 'directory',
+                    name: '/',
+                    children: new Map(),
+                    permissions: 'drwxr-xr-x',
+                    owner: 'root',
+                    group: 'root',
+                    size: 4096,
+                    modified: new Date()
+                }
+            }
+
+            initializeDefaultStructure() {
+                this.createDirectory('/home')
+                this.createDirectory('/home/user')
+                this.createDirectory('/home/user/Documents')
+                this.createDirectory('/home/user/Downloads')
+                this.createDirectory('/home/user/Desktop')
+                this.createDirectory('/etc')
+                this.createDirectory('/var')
+                this.createDirectory('/tmp')
+                this.createDirectory('/usr')
+                this.createDirectory('/usr/bin')
+                this.createDirectory('/usr/local')
+                this.createDirectory('/opt')
+
+                this.createFile('/home/user/Documents/readme.txt', 'This is a sample readme file.\nIt contains multiple lines.\nFor testing purposes.')
+                this.createFile('/home/user/Documents/notes.md', '# My Notes\n\n- Important task 1\n- Important task 2\n- Meeting at 3 PM')
+                this.createFile('/home/user/Downloads/sample.log', '2024-01-01 10:00:00 INFO: Application started\n2024-01-01 10:01:00 DEBUG: Loading configuration\n2024-01-01 10:02:00 ERROR: Connection failed\n2024-01-01 10:03:00 INFO: Retrying connection')
+                this.createFile('/etc/hostname', 'fake-terminal')
+                this.createFile('/etc/os-release', 'NAME="Fake Linux"\nVERSION="1.0"\nID=fake\nPRETTY_NAME="Fake Linux 1.0"')
+                this.createFile('/home/user/.bashrc', 'export PS1="\\u@\\h:\\w$ "\nexport PATH="/usr/bin:/usr/local/bin"\nalias ll="ls -la"')
+                this.createFile('/home/user/.profile', 'source ~/.bashrc')
+            }
+
+            getCurrentPath() {
+                return this.currentPath
+            }
+
+            setCurrentPath(path) {
+                const normalizedPath = this.normalizePath(path)
+                if (this.pathExists(normalizedPath)) {
+                    const node = this.getNode(normalizedPath)
+                    if (node && node.type === 'directory') {
+                        this.currentPath = normalizedPath
+                        return true
+                    }
+                }
+                return false
+            }
+
+            normalizePath(path) {
+                if (path.startsWith('/')) {
+                    return path
+                }
+
+                if (this.currentPath === '/') {
+                    return '/' + path
+                }
+
+                return this.currentPath + '/' + path
+            }
+
+            getNode(path) {
+                if (path === '/') {
+                    return this.root
+                }
+
+                const parts = path.split('/').filter(part => part !== '')
+                let current = this.root
+
+                for (const part of parts) {
+                    if (!current.children || !current.children.has(part)) {
+                        return null
+                    }
+                    current = current.children.get(part)
+                }
+
+                return current
+            }
+
+            pathExists(path) {
+                return this.getNode(this.normalizePath(path)) !== null
+            }
+
+            isDirectory(path) {
+                const node = this.getNode(this.normalizePath(path))
+                return node ? node.type === 'directory' : false
+            }
+
+            isFile(path) {
+                const node = this.getNode(this.normalizePath(path))
+                return node ? node.type === 'file' : false
+            }
+
+            createFile(path, content = '') {
+                const normalizedPath = this.normalizePath(path)
+                const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'))
+                const fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1)
+
+                if (fileName === '' || fileName === '/') {
+                    return false
+                }
+
+                const parent = this.getNode(parentPath)
+                if (!parent || parent.type !== 'directory') {
+                    return false
+                }
+
+                if (!parent.children) {
+                    parent.children = new Map()
+                }
+
+                parent.children.set(fileName, {
+                    type: 'file',
+                    name: fileName,
+                    content,
+                    permissions: '-rw-r--r--',
+                    owner: 'user',
+                    group: 'user',
+                    size: new TextEncoder().encode(content).length,
+                    modified: new Date()
+                })
+
+                return true
+            }
+
+            createDirectory(path) {
+                const normalizedPath = this.normalizePath(path)
+                const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'))
+                const dirName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1)
+
+                if (dirName === '' || dirName === '/') {
+                    return false
+                }
+
+                const parent = this.getNode(parentPath)
+                if (!parent || parent.type !== 'directory') {
+                    return false
+                }
+
+                if (!parent.children) {
+                    parent.children = new Map()
+                }
+
+                parent.children.set(dirName, {
+                    type: 'directory',
+                    name: dirName,
+                    children: new Map(),
+                    permissions: 'drwxr-xr-x',
+                    owner: 'user',
+                    group: 'user',
+                    size: 4096,
+                    modified: new Date()
+                })
+
+                return true
+            }
+
+            readFile(path) {
+                const node = this.getNode(this.normalizePath(path))
+                return node && node.type === 'file' ? node.content || '' : null
+            }
+
+            writeFile(path, content) {
+                const normalizedPath = this.normalizePath(path)
+                const parentPath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'))
+                const fileName = normalizedPath.substring(normalizedPath.lastIndexOf('/') + 1)
+
+                if (fileName === '' || fileName === '/') {
+                    return false
+                }
+
+                const parent = this.getNode(parentPath)
+                if (!parent || parent.type !== 'directory') {
+                    return false
+                }
+
+                if (!parent.children) {
+                    parent.children = new Map()
+                }
+
+                parent.children.set(fileName, {
+                    type: 'file',
+                    name: fileName,
+                    content,
+                    permissions: '-rw-r--r--',
+                    owner: 'user',
+                    group: 'user',
+                    size: new TextEncoder().encode(content).length,
+                    modified: new Date()
+                })
+
+                return true
+            }
+
+            listDirectory(path) {
+                const node = this.getNode(this.normalizePath(path))
+                if (!node || node.type !== 'directory' || !node.children) {
+                    return null
+                }
+
+                return Array.from(node.children.entries()).map(([name, node]) => ({ name, node }))
+            }
+
+            getAbsolutePath(path) {
+                if (path.startsWith('/')) {
+                    return path
+                }
+
+                const parts = this.currentPath.split('/').filter(part => part !== '')
+                const pathParts = path.split('/').filter(part => part !== '')
+
+                for (const part of pathParts) {
+                    if (part === '..') {
+                        parts.pop()
+                    } else if (part !== '.') {
+                        parts.push(part)
+                    }
+                }
+
+                return '/' + parts.join('/')
+            }
+        }
+
+        class WebShell {
+            constructor() {
+                this.fs = new FakeFileSystem()
+                this.history = []
+            }
+
+            async executeCommand(input) {
+                const trimmedInput = input.trim()
+
+                if (trimmedInput === '') {
+                    return { output: '', exitCode: 0 }
+                }
+
+                this.history.push(trimmedInput)
+
+                if (trimmedInput === 'exit' || trimmedInput === 'quit') {
+                    return { output: 'Goodbye!\n', exitCode: 0 }
+                }
+
+                if (trimmedInput === 'clear') {
+                    return { output: '\x1b[2J', exitCode: 0 }
+                }
+
+                if (trimmedInput === 'help') {
+                    return this.showHelp()
+                }
+
+                if (trimmedInput === 'history') {
+                    return this.showHistory()
+                }
+
+                const parts = this.parseCommand(trimmedInput)
+                const commandName = parts[0]
+                const args = parts.slice(1)
+
+                try {
+                    return await this.executeCommandInternal(commandName, args)
+                } catch (error) {
+                    return {
+                        output: `bash: ${commandName}: ${error.message}\n`,
+                        exitCode: 1
+                    }
+                }
+            }
+
+            parseCommand(input) {
+                const parts = []
+                let current = ''
+                let inQuotes = false
+                let quoteChar = ''
+
+                for (let i = 0; i < input.length; i++) {
+                    const char = input[i]
+
+                    if ((char === '"' || char === "'") && !inQuotes) {
+                        inQuotes = true
+                        quoteChar = char
+                    } else if (char === quoteChar && inQuotes) {
+                        inQuotes = false
+                        quoteChar = ''
+                    } else if (char === ' ' && !inQuotes) {
+                        if (current) {
+                            parts.push(current)
+                            current = ''
+                        }
+                    } else {
+                        current += char
+                    }
+                }
+
+                if (current) {
+                    parts.push(current)
+                }
+
+                return parts
+            }
+
+            async executeCommandInternal(commandName, args) {
+                switch (commandName) {
+                    case 'echo':
+                        return { output: args.join(' ') + '\n', exitCode: 0 }
+
+                    case 'cat':
+                        if (args.length === 0) {
+                            return { output: 'cat: missing file operand\n', exitCode: 1 }
+                        }
+                        return this.catCommand(args)
+
+                    case 'ls':
+                        return this.lsCommand(args)
+
+                    case 'pwd':
+                        return { output: this.fs.getCurrentPath() + '\n', exitCode: 0 }
+
+                    case 'cd':
+                        return this.cdCommand(args)
+
+                    case 'mkdir':
+                        return this.mkdirCommand(args)
+
+                    case 'touch':
+                        return this.touchCommand(args)
+
+                    case 'grep':
+                        return this.grepCommand(args)
+
+                    default:
+                        return {
+                            output: `bash: ${commandName}: command not found\n`,
+                            exitCode: 127
+                        }
+                }
+            }
+
+            catCommand(args) {
+                const results = []
+                let hasError = false
+
+                for (const filePath of args) {
+                    const absolutePath = this.fs.getAbsolutePath(filePath)
+
+                    if (!this.fs.pathExists(absolutePath)) {
+                        results.push(`cat: ${filePath}: No such file or directory`)
+                        hasError = true
+                        continue
+                    }
+
+                    if (this.fs.isDirectory(absolutePath)) {
+                        results.push(`cat: ${filePath}: Is a directory`)
+                        hasError = true
+                        continue
+                    }
+
+                    const content = this.fs.readFile(absolutePath)
+                    if (content !== null) {
+                        results.push(content)
+                    } else {
+                        results.push(`cat: ${filePath}: Permission denied`)
+                        hasError = true
+                    }
+                }
+
+                return {
+                    output: results.join(''),
+                    exitCode: hasError ? 1 : 0
+                }
+            }
+
+            lsCommand(args) {
+                const options = this.parseLsOptions(args)
+                const paths = args.filter(arg => !arg.startsWith('-'))
+
+                if (paths.length === 0) {
+                    paths.push('.')
+                }
+
+                const results = []
+                let hasError = false
+
+                for (const path of paths) {
+                    const absolutePath = this.fs.getAbsolutePath(path)
+
+                    if (!this.fs.pathExists(absolutePath)) {
+                        results.push(`ls: cannot access '${path}': No such file or directory\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    if (this.fs.isFile(absolutePath)) {
+                        const fileName = path.substring(path.lastIndexOf('/') + 1)
+                        results.push(fileName + '\n')
+                        continue
+                    }
+
+                    const entries = this.fs.listDirectory(absolutePath)
+                    if (!entries) {
+                        results.push(`ls: cannot access '${path}': Permission denied\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    if (options.all) {
+                        entries.unshift({ name: '.', node: { type: 'directory' } })
+                        entries.unshift({ name: '..', node: { type: 'directory' } })
+                    }
+
+                    const names = entries.map(entry => entry.name)
+                    names.sort()
+
+                    if (options.long) {
+                        for (const name of names) {
+                            const entry = entries.find(e => e.name === name)
+                            results.push(`-rw-r--r-- 1 user user 0 Jan  1 00:00 ${name}\n`)
+                        }
+                    } else {
+                        results.push(names.join('  ') + '\n')
+                    }
+                }
+
+                return {
+                    output: results.join(''),
+                    exitCode: hasError ? 1 : 0
+                }
+            }
+
+            parseLsOptions(args) {
+                const long = args.includes('-l') || args.includes('--long')
+                const all = args.includes('-a') || args.includes('--all')
+                return { long, all }
+            }
+
+            cdCommand(args) {
+                const targetPath = args.length > 0 ? args[0] : '/home/user'
+                const absolutePath = this.fs.getAbsolutePath(targetPath)
+
+                if (!this.fs.pathExists(absolutePath)) {
+                    return { output: `cd: ${targetPath}: No such file or directory\n`, exitCode: 1 }
+                }
+
+                if (!this.fs.isDirectory(absolutePath)) {
+                    return { output: `cd: ${targetPath}: Not a directory\n`, exitCode: 1 }
+                }
+
+                const success = this.fs.setCurrentPath(absolutePath)
+                if (!success) {
+                    return { output: `cd: ${targetPath}: Permission denied\n`, exitCode: 1 }
+                }
+
+                return { output: '', exitCode: 0 }
+            }
+
+            mkdirCommand(args) {
+                if (args.length === 0) {
+                    return { output: 'mkdir: missing operand\n', exitCode: 1 }
+                }
+
+                const results = []
+                let hasError = false
+
+                for (const dirPath of args) {
+                    const absolutePath = this.fs.getAbsolutePath(dirPath)
+
+                    if (this.fs.pathExists(absolutePath)) {
+                        results.push(`mkdir: cannot create directory '${dirPath}': File exists\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    const success = this.fs.createDirectory(absolutePath)
+                    if (!success) {
+                        results.push(`mkdir: cannot create directory '${dirPath}': Permission denied\n`)
+                        hasError = true
+                    }
+                }
+
+                return {
+                    output: results.join(''),
+                    exitCode: hasError ? 1 : 0
+                }
+            }
+
+            touchCommand(args) {
+                if (args.length === 0) {
+                    return { output: 'touch: missing file operand\n', exitCode: 1 }
+                }
+
+                const results = []
+                let hasError = false
+
+                for (const filePath of args) {
+                    const absolutePath = this.fs.getAbsolutePath(filePath)
+
+                    if (this.fs.pathExists(absolutePath)) {
+                        // Update modification time
+                        const content = this.fs.readFile(absolutePath) || ''
+                        const success = this.fs.writeFile(absolutePath, content)
+                        if (!success) {
+                            results.push(`touch: ${filePath}: Permission denied\n`)
+                            hasError = true
+                        }
+                    } else {
+                        // Create new file
+                        const success = this.fs.createFile(absolutePath, '')
+                        if (!success) {
+                            results.push(`touch: ${filePath}: Permission denied\n`)
+                            hasError = true
+                        }
+                    }
+                }
+
+                return {
+                    output: results.join(''),
+                    exitCode: hasError ? 1 : 0
+                }
+            }
+
+            grepCommand(args) {
+                if (args.length === 0) {
+                    return { output: 'grep: missing pattern\n', exitCode: 1 }
+                }
+
+                const pattern = args[0]
+                const files = args.slice(1)
+
+                if (files.length === 0) {
+                    return { output: 'grep: missing file operand\n', exitCode: 1 }
+                }
+
+                const results = []
+                let hasError = false
+                let hasMatch = false
+
+                for (const filePath of files) {
+                    const absolutePath = this.fs.getAbsolutePath(filePath)
+
+                    if (!this.fs.pathExists(absolutePath)) {
+                        results.push(`grep: ${filePath}: No such file or directory\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    if (this.fs.isDirectory(absolutePath)) {
+                        results.push(`grep: ${filePath}: Is a directory\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    const content = this.fs.readFile(absolutePath)
+                    if (content === null) {
+                        results.push(`grep: ${filePath}: Permission denied\n`)
+                        hasError = true
+                        continue
+                    }
+
+                    const lines = content.split('\n')
+                    let fileHasMatch = false
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i]
+                        const lineNumber = i + 1
+
+                        if (line.includes(pattern)) {
+                            fileHasMatch = true
+                            hasMatch = true
+                            results.push(`${filePath}:${lineNumber}:${line}\n`)
+                        }
+                    }
+                }
+
+                return {
+                    output: results.join(''),
+                    exitCode: hasError ? 1 : (hasMatch ? 0 : 1)
+                }
+            }
+
+            showHelp() {
+                const helpText = `Available commands:
+  echo <text>           - Display text
+  cat <file>            - Display file contents
+  ls [options] [path]   - List directory contents
+  grep <pattern> <file> - Search for pattern in file
+  pwd                   - Print working directory
+  cd <path>             - Change directory
+  mkdir <dir>           - Create directory
+  touch <file>          - Create or update file
+  clear                 - Clear screen
+  help                  - Show this help
+  history               - Show command history
+  exit/quit             - Exit shell
+
+Options:
+  ls -l                 - Long format
+  ls -a                 - Show hidden files
+  grep -i               - Case insensitive
+  grep -n               - Show line numbers
+`
+                return { output: helpText, exitCode: 0 }
+            }
+
+            showHistory() {
+                if (this.history.length === 0) {
+                    return { output: 'No commands in history\n', exitCode: 0 }
+                }
+
+                const historyText = this.history
+                    .map((cmd, index) => `${(index + 1).toString().padStart(4)}  ${cmd}`)
+                    .join('\n') + '\n'
+
+                return { output: historyText, exitCode: 0 }
+            }
+
+            getPrompt() {
+                const currentPath = this.fs.getCurrentPath()
+                const shortPath = currentPath === '/home/user' ? '~' :
+                                 currentPath.startsWith('/home/user/') ? '~' + currentPath.substring(10) :
+                                 currentPath
+
+                return `user@fake-terminal:${shortPath}$ `
+            }
+        }
+
+        // Initialize the shell
+        const shell = new WebShell()
+        const output = document.getElementById('output')
+        const input = document.getElementById('input')
+        const prompt = document.getElementById('prompt')
+        const status = document.getElementById('status')
+
+        function updatePrompt() {
+            prompt.textContent = shell.getPrompt()
+        }
+
+        function addOutput(text) {
+            output.textContent += text
+            output.scrollTop = output.scrollHeight
+        }
+
+        function clearOutput() {
+            output.textContent = ''
+        }
+
+        async function executeCommand() {
+            const command = input.value.trim()
+            if (command === '') return
+
+            // Add command to output
+            addOutput(shell.getPrompt() + command + '\n')
+            input.value = ''
+
+            // Execute command
+            const result = await shell.executeCommand(command)
+
+            if (result.output.includes('\x1b[2J')) {
+                clearOutput()
+            } else {
+                addOutput(result.output)
+            }
+
+            updatePrompt()
+            status.textContent = result.exitCode === 0 ? 'Success' : 'Error'
+
+            // Focus input
+            input.focus()
+        }
+
+        // Event listeners
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                executeCommand()
+            }
+        })
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault()
+                // TODO: Implement history navigation
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault()
+                // TODO: Implement history navigation
+            }
+        })
+
+        // Initial setup
+        updatePrompt()
+        addOutput('Welcome to the Web Shell Demo!\nType "help" to see available commands.\n\n')
+    </script>
+</body>
+</html>
+
+
