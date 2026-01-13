@@ -10,7 +10,7 @@ export const create = async (ipc, id, cwd, command, args) => {
   Assert.array(args)
   Assert.object(ipc)
   // @ts-ignore
-  const pty = await Pty.create({ cwd, command, args })
+  const pty = await Pty.create({ args, command, cwd })
   const handleData = (event) => {
     ipc.send({
       jsonrpc: '2.0',

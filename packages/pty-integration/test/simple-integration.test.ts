@@ -14,8 +14,8 @@ test.skip('should start ptyHost and show prompt', async () => {
 
 test.skip('should execute simple command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['echo hello world'],
     expectedOutput: ['hello world', 'testuser $'],
+    input: ['echo hello world'],
   })
 
   await integrationTest.runTest()
@@ -23,8 +23,8 @@ test.skip('should execute simple command', async () => {
 
 test.skip('should handle pwd command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['pwd'],
     expectedOutput: [process.cwd()],
+    input: ['pwd'],
   })
 
   await integrationTest.runTest()
@@ -32,8 +32,8 @@ test.skip('should handle pwd command', async () => {
 
 test.skip('should handle ls command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['ls'],
     expectedOutput: ['package.json', 'testuser $'],
+    input: ['ls'],
   })
 
   await integrationTest.runTest()
@@ -41,8 +41,8 @@ test.skip('should handle ls command', async () => {
 
 test.skip('should handle cd command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['cd ..', 'pwd'],
     expectedOutput: [process.cwd().split('/').slice(0, -1).join('/')],
+    input: ['cd ..', 'pwd'],
   })
 
   await integrationTest.runTest()
@@ -50,8 +50,8 @@ test.skip('should handle cd command', async () => {
 
 test.skip('should handle unknown command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['unknown-command'],
     expectedOutput: ['Command not found: unknown-command'],
+    input: ['unknown-command'],
   })
 
   await integrationTest.runTest()
@@ -70,8 +70,8 @@ test.skip('should handle exit command', async () => {
 
 test.skip('should handle multiple commands in sequence', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['echo first command', 'echo second command', 'pwd', 'exit'],
     expectedOutput: ['first command', 'second command', process.cwd()],
+    input: ['echo first command', 'echo second command', 'pwd', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -79,8 +79,8 @@ test.skip('should handle multiple commands in sequence', async () => {
 
 test.skip('should handle test-command for verification', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['test-command'],
     expectedOutput: ['test-output'],
+    input: ['test-command'],
   })
 
   await integrationTest.runTest()
@@ -88,8 +88,8 @@ test.skip('should handle test-command for verification', async () => {
 
 test.skip('should handle terminal resize', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['echo resize test'],
     expectedOutput: ['resize test'],
+    input: ['echo resize test'],
   })
 
   await integrationTest.start()
@@ -104,8 +104,8 @@ test.skip('should handle terminal resize', async () => {
 
 test.skip('should handle error command', async () => {
   const integrationTest = createSimpleIntegrationTest({
-    input: ['error-command'],
     expectedOutput: ['Command failed'],
+    input: ['error-command'],
   })
 
   await integrationTest.runTest()

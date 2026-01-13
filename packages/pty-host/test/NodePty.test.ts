@@ -9,10 +9,10 @@ test('pty', async () => {
     return
   }
   const pty = await Pty.create({
+    args: [],
+    command: '/bin/bash',
     // @ts-ignore
     cwd: process.cwd(),
-    command: '/bin/bash',
-    args: [],
   })
 
   let allData = ''
@@ -36,10 +36,10 @@ test('print data', async () => {
     return
   }
   const pty = await Pty.create({
+    args: ['-e', 'console.log("abc")'],
+    command: process.execPath,
     // @ts-ignore
     cwd: process.cwd(),
-    command: process.execPath,
-    args: ['-e', 'console.log("abc")'],
   })
 
   let allData = ''
@@ -60,10 +60,10 @@ test('handle exec error', async () => {
     return
   }
   const pty = await Pty.create({
+    args: [],
+    command: '/test/does-not-exist',
     // @ts-ignore
     cwd: process.cwd(),
-    command: '/test/does-not-exist',
-    args: [],
   })
 
   let exited = null

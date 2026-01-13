@@ -5,8 +5,8 @@ import { createIntegrationTest } from '../src/IntegrationTestFramework.ts'
 
 test('should work on all platforms', async () => {
   const integrationTest = createIntegrationTest({
-    input: ['echo platform test', 'exit'],
     expectedOutput: ['platform test'],
+    input: ['echo platform test', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -22,8 +22,8 @@ test('should handle Windows-style paths on Windows', async () => {
   }
 
   const integrationTest = createIntegrationTest({
-    input: ['cd C:\\', 'pwd', 'exit'],
     expectedOutput: ['C:\\'],
+    input: ['cd C:\\', 'pwd', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -35,8 +35,8 @@ test('should handle Unix-style paths on Unix systems', async () => {
   }
 
   const integrationTest = createIntegrationTest({
-    input: ['cd /tmp', 'pwd', 'exit'],
     expectedOutput: ['/tmp'],
+    input: ['cd /tmp', 'pwd', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -44,8 +44,8 @@ test('should handle Unix-style paths on Unix systems', async () => {
 
 test('should handle different line endings', async () => {
   const integrationTest = createIntegrationTest({
-    input: ['echo line1', 'echo line2', 'exit'],
     expectedOutput: ['line1', 'line2'],
+    input: ['echo line1', 'echo line2', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -58,8 +58,8 @@ test('should handle different line endings', async () => {
 
 test('should handle platform-specific commands', async () => {
   const integrationTest = createIntegrationTest({
-    input: ['help', 'exit'],
     expectedOutput: ['Available commands:'],
+    input: ['help', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -105,8 +105,8 @@ test('should handle different terminal sizes', async () => {
 
 test('should handle different encoding', async () => {
   const integrationTest = createIntegrationTest({
-    input: ['echo unicode: 你好世界', 'exit'],
     expectedOutput: ['unicode: 你好世界'],
+    input: ['echo unicode: 你好世界', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -114,13 +114,13 @@ test('should handle different encoding', async () => {
 
 test('should handle special characters in commands', async () => {
   const integrationTest = createIntegrationTest({
+    expectedOutput: ['quoted string', 'unquoted string', '$special$chars'],
     input: [
       'echo "quoted string"',
       'echo unquoted string',
       'echo $special$chars',
       'exit',
     ],
-    expectedOutput: ['quoted string', 'unquoted string', '$special$chars'],
   })
 
   await integrationTest.runTest()

@@ -5,13 +5,13 @@ import { setTimeout } from 'node:timers/promises'
 import { createMockShellPath, root } from './MockShellUtils.ts'
 
 export interface SimpleIntegrationTestOptions {
-  command?: string
   args?: string[]
+  command?: string
   cwd?: string
-  timeout?: number
-  expectedOutput?: string[]
   expectedError?: string[]
+  expectedOutput?: string[]
   input?: string[]
+  timeout?: number
 }
 
 export class SimpleIntegrationTestFramework {
@@ -40,8 +40,8 @@ export class SimpleIntegrationTestFramework {
       ptyHostPath,
       ['--ipc-type=node-forked-process'],
       {
-        stdio: ['pipe', 'pipe', 'pipe'],
         cwd: this.options.cwd || process.cwd(),
+        stdio: ['pipe', 'pipe', 'pipe'],
       },
     )
 
@@ -84,8 +84,8 @@ export class SimpleIntegrationTestFramework {
 
     // Send JSON-RPC message to create terminal
     const message = {
-      jsonrpc: '2.0',
       id: 1,
+      jsonrpc: '2.0',
       method: 'Terminal.create',
       params: [1, process.cwd(), 'node', [mockShellPath]],
     }
@@ -114,8 +114,8 @@ export class SimpleIntegrationTestFramework {
 
     // Send JSON-RPC message to write to terminal
     const message = {
-      jsonrpc: '2.0',
       id: Date.now(),
+      jsonrpc: '2.0',
       method: 'Terminal.write',
       params: [1, input],
     }
@@ -127,8 +127,8 @@ export class SimpleIntegrationTestFramework {
 
   async resize(columns: number, rows: number): Promise<void> {
     const message = {
-      jsonrpc: '2.0',
       id: Date.now(),
+      jsonrpc: '2.0',
       method: 'Terminal.resize',
       params: [1, columns, rows],
     }
@@ -142,8 +142,8 @@ export class SimpleIntegrationTestFramework {
     if (this.ptyHostProcess && !this.isExited) {
       // Send dispose message
       const message = {
-        jsonrpc: '2.0',
         id: Date.now(),
+        jsonrpc: '2.0',
         method: 'Terminal.dispose',
         params: [1],
       }

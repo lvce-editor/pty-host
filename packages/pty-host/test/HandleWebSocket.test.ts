@@ -13,17 +13,17 @@ beforeAll(() => {
 const getHandleMessage = (request) => {
   return {
     headers: request.headers,
-    method: request.method,
-    path: request.path,
-    url: request.url,
     httpVersionMajor: request.httpVersionMajor,
     httpVersionMinor: request.httpVersionMinor,
+    method: request.method,
+    path: request.path,
     query: request.query,
+    url: request.url,
   }
 }
 
 const waitForFirstRequest = async (server) => {
-  const { resolve, promise } = Promise.withResolvers<any>()
+  const { promise, resolve } = Promise.withResolvers<any>()
   let webSocket
   const handleUpgrade = (request) => {
     resolve({
@@ -55,7 +55,7 @@ test('handleWebsocket', async () => {
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
-  const { resolve, promise } = Promise.withResolvers()
+  const { promise, resolve } = Promise.withResolvers()
   webSocket.addEventListener('open', resolve, { once: true })
   await HandleWebSocket.handleWebSocket(httpRequest.socket, request)
   await promise
@@ -63,8 +63,8 @@ test('handleWebsocket', async () => {
 
   webSocket.send(
     JSON.stringify({
-      jsonrpc: '2.0',
       id: 1,
+      jsonrpc: '2.0',
       method: 'Terminal.create',
       params: [
         2,
@@ -76,8 +76,8 @@ test('handleWebsocket', async () => {
   )
   const response = await responsePromise
   expect(response).toEqual({
-    jsonrpc: '2.0',
     id: 1,
+    jsonrpc: '2.0',
     result: null,
   })
   const nextResponse = await waitForWebSocketMessage(webSocket)
@@ -85,8 +85,8 @@ test('handleWebsocket', async () => {
     process.platform === 'win32'
       ? expect.anything() // TODO try to fix assertion on windows, it prints test on windows 2022 and 9001h1004h on windows 2025
       : {
-          type: 'Buffer',
           data: [...Buffer.from('test\r\n')],
+          type: 'Buffer',
         }
   expect(nextResponse).toEqual({
     jsonrpc: '2.0',

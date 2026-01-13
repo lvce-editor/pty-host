@@ -83,8 +83,8 @@ test('should handle PTY with different working directory', async () => {
   const testDir = process.cwd()
   const integrationTest = createIntegrationTest({
     cwd: testDir,
-    input: ['pwd', 'exit'],
     expectedOutput: [testDir],
+    input: ['pwd', 'exit'],
   })
 
   await integrationTest.runTest()
@@ -92,8 +92,8 @@ test('should handle PTY with different working directory', async () => {
 
 test.skip('should handle PTY with custom command arguments', async () => {
   const integrationTest = createIntegrationTest({
-    command: process.execPath,
     args: ['-e', 'console.log("custom node script"); process.stdin.resume()'],
+    command: process.execPath,
     expectedOutput: ['custom node script'],
   })
 
