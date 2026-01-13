@@ -17,8 +17,8 @@ let isInteractive = true
 
 // Command handlers
 const commands = {
-  'pwd': () => currentDir,
-  'ls': (args) => {
+  pwd: () => currentDir,
+  ls: (args) => {
     try {
       const files = fs.readdirSync(currentDir)
       return files.join('\n')
@@ -26,7 +26,7 @@ const commands = {
       return `ls: ${error instanceof Error ? error.message : String(error)}`
     }
   },
-  'cd': (args) => {
+  cd: (args) => {
     const targetPath = args[0] || process.env.HOME || '/'
     const newPath = path.resolve(currentDir, targetPath)
 
@@ -41,17 +41,17 @@ const commands = {
       return `cd: ${targetPath}: No such file or directory`
     }
   },
-  'echo': (args) => args.join(' '),
-  'exit': () => {
+  echo: (args) => args.join(' '),
+  exit: () => {
     isInteractive = false
     process.exit(0)
   },
-  'help': () => `Available commands: ${Object.keys(commands).join(', ')}`,
+  help: () => `Available commands: ${Object.keys(commands).join(', ')}`,
   'test-command': () => 'test-output',
   'error-command': () => {
     process.stderr.write('Error: This is a test error\n')
     return 'Command failed'
-  }
+  },
 }
 
 function processCommand(input) {
@@ -81,7 +81,7 @@ function startShell() {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-    terminal: true
+    terminal: true,
   })
 
   rl.on('line', (input) => {
