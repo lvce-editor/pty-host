@@ -41,7 +41,7 @@ class Pty extends EventTarget {
  * @param {*} param0
  * @returns {Promise<any>}
  */
-export const create = async ({ cwd, command, args }: any = {}) => {
+export const create = async ({ args, command, cwd }: any = {}) => {
   try {
     Assert.string(cwd)
     Assert.string(command)
@@ -49,8 +49,8 @@ export const create = async ({ cwd, command, args }: any = {}) => {
     const { spawn } = await import('node-pty')
 
     const pty = spawn(command, args, {
-      encoding: null,
       cwd,
+      encoding: null,
       // cols: 10,
       // rows: 10,
     })

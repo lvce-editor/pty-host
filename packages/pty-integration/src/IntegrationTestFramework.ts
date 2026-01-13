@@ -3,13 +3,13 @@ import { setTimeout } from 'node:timers/promises'
 import { createMockShellPath } from './MockShellUtils.ts'
 
 export interface IntegrationTestOptions {
-  command?: string
   args?: string[]
+  command?: string
   cwd?: string
-  timeout?: number
-  expectedOutput?: string[]
   expectedError?: string[]
+  expectedOutput?: string[]
   input?: string[]
+  timeout?: number
 }
 
 export class IntegrationTestFramework {
@@ -27,8 +27,8 @@ export class IntegrationTestFramework {
     // Start the mock shell process directly
     const mockShellPath = createMockShellPath()
     this.mockShellProcess = spawn('node', [mockShellPath], {
-      stdio: ['pipe', 'pipe', 'pipe'],
       cwd: this.options.cwd || process.cwd(),
+      stdio: ['pipe', 'pipe', 'pipe'],
     })
 
     // Set up event handlers

@@ -8,14 +8,14 @@ import { WebSocket } from 'ws'
 import { createMockShellPath, root } from './MockShellUtils.ts'
 
 export interface SocketBasedIntegrationTestOptions {
-  command?: string
   args?: string[]
+  command?: string
   cwd?: string
-  timeout?: number
-  expectedOutput?: string[]
   expectedError?: string[]
+  expectedOutput?: string[]
   input?: string[]
   port?: number
+  timeout?: number
 }
 
 export class SocketBasedIntegrationTestFramework {
@@ -101,8 +101,8 @@ export class SocketBasedIntegrationTestFramework {
         `--websocket-url=ws://localhost:${this.port}`,
       ],
       {
-        stdio: ['pipe', 'pipe', 'pipe'],
         cwd: process.cwd(),
+        stdio: ['pipe', 'pipe', 'pipe'],
       },
     )
 
@@ -139,8 +139,8 @@ export class SocketBasedIntegrationTestFramework {
     const mockShellPath = createMockShellPath()
 
     const message = {
-      jsonrpc: '2.0',
       id: randomUUID(),
+      jsonrpc: '2.0',
       method: 'Terminal.create',
       params: [this.terminalId, process.cwd(), 'node', [mockShellPath]],
     }
@@ -186,8 +186,8 @@ export class SocketBasedIntegrationTestFramework {
     }
 
     const message = {
-      jsonrpc: '2.0',
       id: randomUUID(),
+      jsonrpc: '2.0',
       method: 'Terminal.write',
       params: [this.terminalId, input],
     }
@@ -197,8 +197,8 @@ export class SocketBasedIntegrationTestFramework {
 
   async resize(columns: number, rows: number): Promise<void> {
     const message = {
-      jsonrpc: '2.0',
       id: randomUUID(),
+      jsonrpc: '2.0',
       method: 'Terminal.resize',
       params: [this.terminalId, columns, rows],
     }
@@ -209,8 +209,8 @@ export class SocketBasedIntegrationTestFramework {
   async dispose(): Promise<void> {
     if (this.terminalId) {
       const message = {
-        jsonrpc: '2.0',
         id: randomUUID(),
+        jsonrpc: '2.0',
         method: 'Terminal.dispose',
         params: [this.terminalId],
       }
