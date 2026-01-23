@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import * as Assert from '../Assert/Assert.ts'
 import { DataEvent } from '../DataEvent/DataEvent.ts'
 import { ExitEvent } from '../ExitEvent/ExitEvent.ts'
@@ -36,6 +37,13 @@ class Pty extends EventTarget {
   }
 }
 
+const toPath = (pathOrUri: string) => {
+  if (pathOrUri && pathOrUri.startsWith('file://')) {
+    return fileURLToPath(pathOrUri).toString()
+  }
+  return pathOrUri
+}
+
 /**
  *
  * @param {*} param0
@@ -48,8 +56,10 @@ export const create = async ({ args, command, cwd }: any = {}) => {
     Assert.array(args)
     const { spawn } = await import('node-pty')
 
+    const cwdPath = toPath(cwd)
+
     const pty = spawn(command, args, {
-      cwd,
+      cwd: cwdPath,
       encoding: null,
       // cols: 10,
       // rows: 10,
