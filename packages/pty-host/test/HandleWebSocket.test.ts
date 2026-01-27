@@ -51,14 +51,36 @@ const waitForWebSocketMessage = async (webSocket: any) => {
   return nextResponseValue
 }
 
+const waitForSocketToOpen = async (webSocket: any) => {
+  const { promise, reject, resolve } = Promise.withResolvers<void>()
+
+  const handleOpen = () => {
+    cleanup()
+    resolve()
+  }
+
+  const handleError = (error: any) => {
+    cleanup()
+    reject(error)
+  }
+
+  const cleanup = () => {
+    webSocket.removeEventListener('open', handleOpen)
+    webSocket.removeEventListener('error', handleError)
+  }
+
+  webSocket.addEventListener('open', handleOpen)
+  webSocket.addEventListener('error', handleError)
+
+  return promise
+}
+
 test('handleWebsocket', async () => {
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
-  const { promise, resolve } = Promise.withResolvers()
-  webSocket.addEventListener('open', resolve, { once: true })
   await HandleWebSocket.handleWebSocket(httpRequest.socket, request)
-  await promise
+  await waitForSocketToOpen(webSocket)
   const responsePromise = waitForWebSocketMessage(webSocket)
 
   webSocket.send(
