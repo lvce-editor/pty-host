@@ -23,6 +23,7 @@ export default [
       'no-console': 'off',
       'unicorn/consistent-function-scoping': 'off',
       'unicorn/no-process-exit': 'off',
+      '@cspell/spellchecker': 'off',
     },
   },
 ]
