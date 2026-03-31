@@ -1,3 +1,4 @@
+import * as ExecuteShellCommand from '../ExecuteShellCommand/ExecuteShellCommand.ts'
 import * as HandleElectronMessagePort from '../HandleElectronMessagePort/HandleElectronMessagePort.ts'
 import * as HandleNodeMessagePort from '../HandleNodeMessagePort/HandleNodeMessagePort.ts'
 import * as HandleWebSocket from '../HandleWebSocket/HandleWebSocket.ts'
@@ -12,6 +13,8 @@ export const commandMap = {
   [TerminalProcessCommandType.HandleWebSocket]: HandleWebSocket.handleWebSocket,
   [TerminalProcessCommandType.TerminalCreate]: PtyController.create,
   [TerminalProcessCommandType.TerminalDispose]: PtyController.dispose,
+  [TerminalProcessCommandType.TerminalExecuteShellCommand]:
+    ExecuteShellCommand.executeShellCommand,
   [TerminalProcessCommandType.TerminalResize]: PtyController.resize,
   [TerminalProcessCommandType.TerminalWrite]: PtyController.write,
 }
