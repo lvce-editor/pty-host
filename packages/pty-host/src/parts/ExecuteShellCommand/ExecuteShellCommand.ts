@@ -14,6 +14,12 @@ interface ErrorResult {
   errorStack: string | undefined
 }
 
+interface ExecuteShellCommandOptions {
+  args: readonly string[]
+  cwd: string
+  toSpawn: string
+}
+
 type ExecuteShellCommandResult = SuccessResult | ErrorResult
 
 const toPath = (pathOrUri: string) => {
@@ -30,7 +36,10 @@ const toString = (chunks: readonly Uint8Array[]) => {
 const serializeError = (error: unknown): ErrorResult => {
   if (error instanceof Error) {
     return {
-      errorCode: 'code' in error && typeof error.code === 'string' ? error.code : undefined,
+      errorCode:
+        'code' in error && typeof error.code === 'string'
+          ? error.code
+          : undefined,
       errorMessage: error.message,
       errorStack: error.stack,
     }
@@ -53,11 +62,7 @@ export const executeShellCommand = async ({
   args,
   cwd,
   toSpawn,
-}: {
-  args: readonly string[]
-  cwd: string
-  toSpawn: string
-}) => {
+}: ExecuteShellCommandOptions) => {
   Assert.array(args)
   Assert.string(cwd)
   Assert.string(toSpawn)
