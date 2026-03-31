@@ -1,10 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "esnext",
-      "WebWorker"
-    ],
+    "lib": ["esnext", "WebWorker"],
     "checkJs": true,
     "module": "nodenext",
     "types": [],
@@ -22,8 +19,5 @@
     "noUnusedLocals": true,
     "allowImportingTsExtensions": true
   },
-  "include": [
-    "src",
-    "test"
-  ]
+  "include": ["src", "test"]
 }
