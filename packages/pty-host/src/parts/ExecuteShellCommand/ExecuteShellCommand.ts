@@ -1,17 +1,13 @@
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import * as Assert from '../Assert/Assert.ts'
+import type { ErrorResult } from '../SerializeError/SerializeError.ts'
+import { serializeError } from '../SerializeError/SerializeError.ts'
 
 interface SuccessResult {
   exitCode: number | null
   stderr: string
   stdout: string
-}
-
-interface ErrorResult {
-  errorCode: string | undefined
-  errorMessage: string
-  errorStack: string | undefined
 }
 
 interface ExecuteShellCommandOptions {
@@ -31,37 +27,6 @@ const toPath = (pathOrUri: string) => {
 
 const toString = (chunks: readonly Uint8Array[]) => {
   return Buffer.concat(chunks).toString()
-}
-
-const serializeError = (error: unknown): ErrorResult => {
-  if (error && typeof error === 'object') {
-    return {
-      errorCode:
-        'code' in error && typeof error.code === 'string'
-          ? error.code
-          : undefined,
-      errorMessage:
-        'message' in error && typeof error.message === 'string'
-          ? error.message
-          : 'Unknown error',
-      errorStack:
-        'stack' in error && typeof error.stack === 'string'
-          ? error.stack
-          : undefined,
-    }
-  }
-  if (typeof error === 'string') {
-    return {
-      errorCode: undefined,
-      errorMessage: error,
-      errorStack: undefined,
-    }
-  }
-  return {
-    errorCode: undefined,
-    errorMessage: 'Unknown error',
-    errorStack: undefined,
-  }
 }
 
 export const executeShellCommand = async ({

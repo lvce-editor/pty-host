@@ -14,6 +14,20 @@ test('serializeError - error with code', () => {
   })
 })
 
+test('serializeError - object with message', () => {
+  const result = SerializeError.serializeError({
+    code: 'ERR_TEST',
+    message: 'test error',
+    stack: 'stack',
+  })
+
+  expect(result).toEqual({
+    errorCode: 'ERR_TEST',
+    errorMessage: 'test error',
+    errorStack: 'stack',
+  })
+})
+
 test('serializeError - string', () => {
   const result = SerializeError.serializeError('test error')
 
