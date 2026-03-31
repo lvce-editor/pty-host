@@ -4,19 +4,19 @@ import type { ErrorResult } from '../SerializeError/SerializeError.ts'
 import * as Assert from '../Assert/Assert.ts'
 import { serializeError } from '../SerializeError/SerializeError.ts'
 
-interface SuccessResult {
+export interface SuccessResult {
   exitCode: number | null
   stderr: string
   stdout: string
 }
 
-interface ExecuteShellCommandOptions {
+export interface ExecuteShellCommandOptions {
   args: readonly string[]
   cwd: string
   toSpawn: string
 }
 
-type ExecuteShellCommandResult = SuccessResult | ErrorResult
+export type ExecuteShellCommandResult = SuccessResult | ErrorResult
 
 const toPath = (pathOrUri: string) => {
   if (pathOrUri.startsWith('file://')) {
