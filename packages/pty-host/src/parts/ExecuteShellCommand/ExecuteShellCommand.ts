@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import * as Assert from '../Assert/Assert.ts'
 import type { ErrorResult } from '../SerializeError/SerializeError.ts'
+import * as Assert from '../Assert/Assert.ts'
 import { serializeError } from '../SerializeError/SerializeError.ts'
 
 interface SuccessResult {
