@@ -34,14 +34,20 @@ const toString = (chunks: readonly Uint8Array[]) => {
 }
 
 const serializeError = (error: unknown): ErrorResult => {
-  if (error instanceof Error) {
+  if (error && typeof error === 'object') {
     return {
       errorCode:
         'code' in error && typeof error.code === 'string'
           ? error.code
           : undefined,
-      errorMessage: error.message,
-      errorStack: error.stack,
+      errorMessage:
+        'message' in error && typeof error.message === 'string'
+          ? error.message
+          : 'Unknown error',
+      errorStack:
+        'stack' in error && typeof error.stack === 'string'
+          ? error.stack
+          : undefined,
     }
   }
   if (typeof error === 'string') {
