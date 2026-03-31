@@ -27,7 +27,7 @@ export const executeShellCommand = async ({
   Assert.string(toSpawn)
 
   try {
-    return await new Promise<
+    const { promise, resolve } = Promise.withResolvers<
       | {
           exitCode: number | null
           stderr: string
@@ -36,33 +36,34 @@ export const executeShellCommand = async ({
       | {
           error: unknown
         }
-    >((resolve) => {
-      const childProcess = spawn(toSpawn, args, {
-        cwd: toPath(cwd),
-      })
-      const stdoutChunks: Uint8Array[] = []
-      const stderrChunks: Uint8Array[] = []
+    >()
+    const childProcess = spawn(toSpawn, args, {
+      cwd: toPath(cwd),
+    })
+    const stdoutChunks: Uint8Array[] = []
+    const stderrChunks: Uint8Array[] = []
 
-      childProcess.stdout.on('data', (chunk) => {
-        stdoutChunks.push(chunk)
-      })
+    childProcess.stdout.on('data', (chunk) => {
+      stdoutChunks.push(chunk)
+    })
 
-      childProcess.stderr.on('data', (chunk) => {
-        stderrChunks.push(chunk)
-      })
+    childProcess.stderr.on('data', (chunk) => {
+      stderrChunks.push(chunk)
+    })
 
-      childProcess.on('error', (error) => {
-        resolve({ error })
-      })
+    childProcess.on('error', (error) => {
+      resolve({ error })
+    })
 
-      childProcess.on('close', (exitCode) => {
-        resolve({
-          exitCode,
-          stderr: toString(stderrChunks),
-          stdout: toString(stdoutChunks),
-        })
+    childProcess.on('close', (exitCode) => {
+      resolve({
+        exitCode,
+        stderr: toString(stderrChunks),
+        stdout: toString(stdoutChunks),
       })
     })
+
+    return await promise
   } catch (error) {
     return {
       error,
