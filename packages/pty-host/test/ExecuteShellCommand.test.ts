@@ -23,10 +23,9 @@ test('executeShellCommand - error', async () => {
   })
 
   expect(result).toMatchObject({
-    error: {
-      code: 'ENOENT',
-      path: 'command-that-does-not-exist',
-      syscall: 'spawn command-that-does-not-exist',
-    },
+    errorCode: 'ENOENT',
+    errorMessage: 'spawn command-that-does-not-exist ENOENT',
   })
+
+  expect(result).toHaveProperty('errorStack')
 })

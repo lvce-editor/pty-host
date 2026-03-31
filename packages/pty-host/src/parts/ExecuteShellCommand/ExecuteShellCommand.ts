@@ -9,7 +9,9 @@ interface SuccessResult {
 }
 
 interface ErrorResult {
-  error: unknown
+  errorCode: string | undefined
+  errorMessage: string
+  errorStack: string | undefined
 }
 
 type ExecuteShellCommandResult = SuccessResult | ErrorResult
@@ -23,6 +25,28 @@ const toPath = (pathOrUri: string) => {
 
 const toString = (chunks: readonly Uint8Array[]) => {
   return Buffer.concat(chunks).toString()
+}
+
+const serializeError = (error: unknown): ErrorResult => {
+  if (error instanceof Error) {
+    return {
+      errorCode: 'code' in error && typeof error.code === 'string' ? error.code : undefined,
+      errorMessage: error.message,
+      errorStack: error.stack,
+    }
+  }
+  if (typeof error === 'string') {
+    return {
+      errorCode: undefined,
+      errorMessage: error,
+      errorStack: undefined,
+    }
+  }
+  return {
+    errorCode: undefined,
+    errorMessage: 'Unknown error',
+    errorStack: undefined,
+  }
 }
 
 export const executeShellCommand = async ({
@@ -68,7 +92,7 @@ export const executeShellCommand = async ({
     }
 
     const handleError = (error: unknown) => {
-      resolveWithCleanup({ error })
+      resolveWithCleanup(serializeError(error))
     }
 
     const handleClose = (exitCode: number | null) => {
@@ -86,8 +110,6 @@ export const executeShellCommand = async ({
 
     return await promise
   } catch (error) {
-    return {
-      error,
-    }
+    return serializeError(error)
   }
 }
