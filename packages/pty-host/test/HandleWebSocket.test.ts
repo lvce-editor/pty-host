@@ -75,7 +75,17 @@ const waitForSocketToOpen = async (webSocket: any) => {
   return promise
 }
 
+const isNodePtyAvailable = async () => {
+  try {
+    await import('node-pty')
+    return true
+  } catch {
+    return false
+  }
+}
+
 test('handleWebsocket', async () => {
+  const nodePtyAvailable = await isNodePtyAvailable()
   const server = http.createServer()
   const { httpRequest, webSocket } = await waitForFirstRequest(server)
   const request = getHandleMessage(httpRequest)
@@ -97,6 +107,22 @@ test('handleWebsocket', async () => {
     }),
   )
   const response = await responsePromise
+  if (!nodePtyAvailable) {
+    expect(response).toMatchObject({
+      error: {
+        code: -32_001,
+        data: {
+          code: 'MODULE_NOT_FOUND',
+        },
+      },
+      id: 1,
+      jsonrpc: '2.0',
+    })
+    // @ts-ignore
+    httpRequest.socket.destroy()
+    server.close()
+    return
+  }
   expect(response).toEqual({
     id: 1,
     jsonrpc: '2.0',
