@@ -24,14 +24,6 @@ export class SimpleIntegrationTestFramework {
 
   constructor(private options: SimpleIntegrationTestOptions) {}
 
-  async start(): Promise<void> {
-    // Start ptyHost process
-    await this.startPtyHost()
-
-    // Wait for terminal to be ready
-    await this.waitForReady()
-  }
-
   private async startPtyHost(): Promise<void> {
     // Start ptyHost with mockshell
     // const mockShellPath = createMockShellPath()
@@ -87,7 +79,7 @@ export class SimpleIntegrationTestFramework {
       id: 1,
       jsonrpc: '2.0',
       method: 'Terminal.create',
-      params: [1, process.cwd(), 'node', [mockShellPath]],
+      params: [1, process.cwd(), process.execPath, [mockShellPath]],
     }
 
     console.log('Sending message:', JSON.stringify(message))
@@ -105,6 +97,55 @@ export class SimpleIntegrationTestFramework {
     if (!this.ready && !this.isExited) {
       throw new Error(`Terminal did not become ready within ${timeout}ms`)
     }
+  }
+
+  private async sendInputs(): Promise<void> {
+    if (!this.options.input) {
+      return
+    }
+    for (const input of this.options.input) {
+      if (this.isExited) {
+        break
+      }
+      await this.write(input + '\n')
+      await setTimeout(50)
+    }
+  }
+
+  private async verifyExpectedOutput(): Promise<void> {
+    if (!this.options.expectedOutput) {
+      return
+    }
+    for (const expected of this.options.expectedOutput) {
+      await this.waitForOutput(expected)
+    }
+  }
+
+  private verifyExpectedError(): void {
+    if (!this.options.expectedError) {
+      return
+    }
+    for (const expected of this.options.expectedError) {
+      if (!this.error.includes(expected)) {
+        throw new Error(
+          `Expected error "${expected}" not found. Got: ${this.error}`,
+        )
+      }
+    }
+  }
+
+  private async waitForExpectedExit(): Promise<void> {
+    if (this.options.input && this.options.input.includes('exit')) {
+      await this.waitForExit()
+    }
+  }
+
+  async start(): Promise<void> {
+    // Start ptyHost process
+    await this.startPtyHost()
+
+    // Wait for terminal to be ready
+    await this.waitForReady()
   }
 
   async write(input: string): Promise<void> {
@@ -139,24 +180,26 @@ export class SimpleIntegrationTestFramework {
   }
 
   async dispose(): Promise<void> {
-    if (this.ptyHostProcess && !this.isExited) {
-      // Send dispose message
-      const message = {
-        id: Date.now(),
-        jsonrpc: '2.0',
-        method: 'Terminal.dispose',
-        params: [1],
-      }
-
-      if (this.ptyHostProcess.stdin) {
-        this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
-      }
-
-      // Wait a bit for cleanup
-      await setTimeout(100)
-
-      this.ptyHostProcess.kill()
+    if (!this.ptyHostProcess || this.isExited) {
+      return
     }
+
+    // Send dispose message
+    const message = {
+      id: Date.now(),
+      jsonrpc: '2.0',
+      method: 'Terminal.dispose',
+      params: [1],
+    }
+
+    if (this.ptyHostProcess.stdin) {
+      this.ptyHostProcess.stdin.write(JSON.stringify(message) + '\n')
+    }
+
+    // Wait a bit for cleanup
+    await setTimeout(100)
+
+    this.ptyHostProcess.kill()
   }
 
   async waitForOutput(expected: string, timeout: number = 5000): Promise<void> {
@@ -210,39 +253,10 @@ export class SimpleIntegrationTestFramework {
   async runTest(): Promise<void> {
     try {
       await this.start()
-
-      // Send input commands if provided
-      if (this.options.input) {
-        for (const input of this.options.input) {
-          if (this.isExited) break
-          await this.write(input + '\n')
-          // Small delay between commands
-          await setTimeout(50)
-        }
-      }
-
-      // Check expected output
-      if (this.options.expectedOutput) {
-        for (const expected of this.options.expectedOutput) {
-          await this.waitForOutput(expected)
-        }
-      }
-
-      // Check expected error
-      if (this.options.expectedError) {
-        for (const expected of this.options.expectedError) {
-          if (!this.error.includes(expected)) {
-            throw new Error(
-              `Expected error "${expected}" not found. Got: ${this.error}`,
-            )
-          }
-        }
-      }
-
-      // Wait for exit if expected
-      if (this.options.input && this.options.input.includes('exit')) {
-        await this.waitForExit()
-      }
+      await this.sendInputs()
+      await this.verifyExpectedOutput()
+      this.verifyExpectedError()
+      await this.waitForExpectedExit()
     } finally {
       await this.dispose()
     }

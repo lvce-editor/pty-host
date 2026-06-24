@@ -35,17 +35,6 @@ export class SocketBasedIntegrationTestFramework {
     this.port = options.port || 0 // 0 means let the system choose a free port
   }
 
-  async start(): Promise<void> {
-    // Start WebSocket server
-    await this.startWebSocketServer()
-
-    // Start ptyHost process and connect it to our WebSocket server
-    await this.startPtyHost()
-
-    // Wait for terminal to be ready
-    await this.waitForReady()
-  }
-
   private async startWebSocketServer(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.server = http.createServer()
@@ -94,7 +83,7 @@ export class SocketBasedIntegrationTestFramework {
     const ptyHostPath = join(root, 'packages/pty-host/src/ptyHostMain.ts')
 
     this.ptyHostProcess = spawn(
-      'node',
+      process.execPath,
       [
         ptyHostPath,
         '--ipc-type=websocket',
@@ -142,7 +131,7 @@ export class SocketBasedIntegrationTestFramework {
       id: randomUUID(),
       jsonrpc: '2.0',
       method: 'Terminal.create',
-      params: [this.terminalId, process.cwd(), 'node', [mockShellPath]],
+      params: [this.terminalId, process.cwd(), process.execPath, [mockShellPath]],
     }
 
     await this.sendMessage(message)
@@ -178,6 +167,58 @@ export class SocketBasedIntegrationTestFramework {
     if (!this.ready && !this.isExited) {
       throw new Error(`Terminal did not become ready within ${timeout}ms`)
     }
+  }
+
+  private async sendInputs(): Promise<void> {
+    if (!this.options.input) {
+      return
+    }
+    for (const input of this.options.input) {
+      if (this.isExited) {
+        break
+      }
+      await this.write(input + '\n')
+      await setTimeout(50)
+    }
+  }
+
+  private async verifyExpectedOutput(): Promise<void> {
+    if (!this.options.expectedOutput) {
+      return
+    }
+    for (const expected of this.options.expectedOutput) {
+      await this.waitForOutput(expected)
+    }
+  }
+
+  private verifyExpectedError(): void {
+    if (!this.options.expectedError) {
+      return
+    }
+    for (const expected of this.options.expectedError) {
+      if (!this.error.includes(expected)) {
+        throw new Error(
+          `Expected error "${expected}" not found. Got: ${this.error}`,
+        )
+      }
+    }
+  }
+
+  private async waitForExpectedExit(): Promise<void> {
+    if (this.options.input && this.options.input.includes('exit')) {
+      await this.waitForExit()
+    }
+  }
+
+  async start(): Promise<void> {
+    // Start WebSocket server
+    await this.startWebSocketServer()
+
+    // Start ptyHost process and connect it to our WebSocket server
+    await this.startPtyHost()
+
+    // Wait for terminal to be ready
+    await this.waitForReady()
   }
 
   async write(input: string): Promise<void> {
@@ -286,39 +327,10 @@ export class SocketBasedIntegrationTestFramework {
   async runTest(): Promise<void> {
     try {
       await this.start()
-
-      // Send input commands if provided
-      if (this.options.input) {
-        for (const input of this.options.input) {
-          if (this.isExited) break
-          await this.write(input + '\n')
-          // Small delay between commands
-          await setTimeout(50)
-        }
-      }
-
-      // Check expected output
-      if (this.options.expectedOutput) {
-        for (const expected of this.options.expectedOutput) {
-          await this.waitForOutput(expected)
-        }
-      }
-
-      // Check expected error
-      if (this.options.expectedError) {
-        for (const expected of this.options.expectedError) {
-          if (!this.error.includes(expected)) {
-            throw new Error(
-              `Expected error "${expected}" not found. Got: ${this.error}`,
-            )
-          }
-        }
-      }
-
-      // Wait for exit if expected
-      if (this.options.input && this.options.input.includes('exit')) {
-        await this.waitForExit()
-      }
+      await this.sendInputs()
+      await this.verifyExpectedOutput()
+      this.verifyExpectedError()
+      await this.waitForExpectedExit()
     } finally {
       await this.dispose()
     }

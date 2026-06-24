@@ -19,6 +19,9 @@ test.skip('should execute simple command via socket', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('hello world')
 })
 
 test.skip('should handle pwd command via socket', async () => {
@@ -28,6 +31,9 @@ test.skip('should handle pwd command via socket', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain(process.cwd())
 })
 
 test.skip('should handle ls command via socket', async () => {
@@ -37,6 +43,9 @@ test.skip('should handle ls command via socket', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('package.json')
 })
 
 test.skip('should handle cd command via socket', async () => {
@@ -46,6 +55,9 @@ test.skip('should handle cd command via socket', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain(process.cwd().split('/').slice(0, -1).join('/'))
 })
 
 test.skip('should handle unknown command via socket', async () => {
@@ -55,6 +67,9 @@ test.skip('should handle unknown command via socket', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('Command not found: unknown-command')
 })
 
 test.skip('should handle exit command via socket', async () => {
@@ -75,6 +90,9 @@ test.skip('should handle multiple commands in sequence via socket', async () => 
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('first command')
 })
 
 test.skip('should handle test-command for verification via socket', async () => {
@@ -84,6 +102,9 @@ test.skip('should handle test-command for verification via socket', async () => 
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('test-output')
 })
 
 test.skip('should handle terminal resize via socket', async () => {
@@ -98,6 +119,9 @@ test.skip('should handle terminal resize via socket', async () => {
   await integrationTest.resize(120, 30)
   await integrationTest.write('echo after resize\n')
   await integrationTest.waitForOutput('after resize')
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('after resize')
 
   await integrationTest.dispose()
 })

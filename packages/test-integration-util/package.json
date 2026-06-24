@@ -10,7 +10,7 @@
     "@lvce-editor/assert": "^1.5.1",
     "@lvce-editor/command": "^2.0.0",
     "@lvce-editor/fuzzy-search": "^2.0.1",
-    "@lvce-editor/ipc": "^15.0.0",
+    "@lvce-editor/ipc": "^16.0.0",
     "@lvce-editor/json-rpc": "^8.0.0",
     "@lvce-editor/verror": "^1.7.0",
     "@types/node": "^24.2.0"

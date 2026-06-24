@@ -23,19 +23,72 @@ export class IntegrationTestFramework {
 
   constructor(private options: IntegrationTestOptions) {}
 
+  private async waitForReady(timeout: number = 5000): Promise<void> {
+    const start = Date.now()
+    while (!this.ready && !this.isExited && Date.now() - start < timeout) {
+      await setTimeout(10)
+    }
+
+    if (!this.ready && !this.isExited) {
+      throw new Error(`Terminal did not become ready within ${timeout}ms`)
+    }
+  }
+
+  private async sendInputs(): Promise<void> {
+    if (!this.options.input) {
+      return
+    }
+    for (const input of this.options.input) {
+      if (this.isExited) {
+        break
+      }
+      await this.write(input + '\n')
+      await setTimeout(50)
+    }
+  }
+
+  private async verifyExpectedOutput(): Promise<void> {
+    if (!this.options.expectedOutput) {
+      return
+    }
+    for (const expected of this.options.expectedOutput) {
+      await this.waitForOutput(expected)
+    }
+  }
+
+  private verifyExpectedError(): void {
+    if (!this.options.expectedError) {
+      return
+    }
+    for (const expected of this.options.expectedError) {
+      if (!this.error.includes(expected)) {
+        throw new Error(
+          `Expected error "${expected}" not found. Got: ${this.error}`,
+        )
+      }
+    }
+  }
+
+  private async waitForExpectedExit(): Promise<void> {
+    if (this.options.input && this.options.input.includes('exit')) {
+      await this.waitForExit()
+    }
+  }
+
   async start(): Promise<void> {
     // Start the mock shell process directly
     const mockShellPath = createMockShellPath()
-    this.mockShellProcess = spawn('node', [mockShellPath], {
+    this.mockShellProcess = spawn(process.execPath, [mockShellPath], {
       cwd: this.options.cwd || process.cwd(),
       stdio: ['pipe', 'pipe', 'pipe'],
     })
 
     // Set up event handlers
     this.mockShellProcess.stdout.on('data', (data: Buffer) => {
-      this.output += data.toString()
+      const output = data.toString()
+      this.output += output
       // Check if we've received the initial prompt
-      if (data.toString().includes('$ ') && !this.ready) {
+      if (output.includes('$ ') && !this.ready) {
         this.ready = true
       }
     })
@@ -51,17 +104,6 @@ export class IntegrationTestFramework {
 
     // Wait for terminal to be ready
     await this.waitForReady()
-  }
-
-  private async waitForReady(timeout: number = 5000): Promise<void> {
-    const start = Date.now()
-    while (!this.ready && !this.isExited && Date.now() - start < timeout) {
-      await setTimeout(10)
-    }
-
-    if (!this.ready && !this.isExited) {
-      throw new Error(`Terminal did not become ready within ${timeout}ms`)
-    }
   }
 
   async write(input: string): Promise<void> {
@@ -134,39 +176,10 @@ export class IntegrationTestFramework {
   async runTest(): Promise<void> {
     try {
       await this.start()
-
-      // Send input commands if provided
-      if (this.options.input) {
-        for (const input of this.options.input) {
-          if (this.isExited) break
-          await this.write(input + '\n')
-          // Small delay between commands
-          await setTimeout(50)
-        }
-      }
-
-      // Check expected output
-      if (this.options.expectedOutput) {
-        for (const expected of this.options.expectedOutput) {
-          await this.waitForOutput(expected)
-        }
-      }
-
-      // Check expected error
-      if (this.options.expectedError) {
-        for (const expected of this.options.expectedError) {
-          if (!this.error.includes(expected)) {
-            throw new Error(
-              `Expected error "${expected}" not found. Got: ${this.error}`,
-            )
-          }
-        }
-      }
-
-      // Wait for exit if expected
-      if (this.options.input && this.options.input.includes('exit')) {
-        await this.waitForExit()
-      }
+      await this.sendInputs()
+      await this.verifyExpectedOutput()
+      this.verifyExpectedError()
+      await this.waitForExpectedExit()
     } finally {
       await this.dispose()
     }

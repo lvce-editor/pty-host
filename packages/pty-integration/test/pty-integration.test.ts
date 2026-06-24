@@ -9,6 +9,9 @@ test('should create PTY with mock shell', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('testuser $')
 })
 
 test('should handle PTY resize', async () => {
@@ -22,6 +25,9 @@ test('should handle PTY resize', async () => {
   // For now, just test basic functionality
   await integrationTest.write('echo resize test\n')
   await integrationTest.waitForOutput('resize test')
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('resize test')
 
   await integrationTest.dispose()
 })
@@ -88,6 +94,9 @@ test('should handle PTY with different working directory', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain(testDir)
 })
 
 test.skip('should handle PTY with custom command arguments', async () => {
@@ -98,6 +107,9 @@ test.skip('should handle PTY with custom command arguments', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('custom node script')
 
   // Clean up manually since this process doesn't exit naturally
   await integrationTest.dispose()

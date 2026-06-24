@@ -39,7 +39,7 @@ class Pty extends EventTarget {
 
 const toPath = (pathOrUri: string) => {
   if (pathOrUri && pathOrUri.startsWith('file://')) {
-    return fileURLToPath(pathOrUri).toString()
+    return fileURLToPath(pathOrUri)
   }
   return pathOrUri
 }

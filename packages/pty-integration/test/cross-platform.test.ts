@@ -18,6 +18,7 @@ test('should work on all platforms', async () => {
 
 test('should handle Windows-style paths on Windows', async () => {
   if (platform() !== 'win32') {
+    expect(platform()).not.toBe('win32')
     return
   }
 
@@ -27,10 +28,14 @@ test('should handle Windows-style paths on Windows', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('C:\\')
 })
 
 test('should handle Unix-style paths on Unix systems', async () => {
   if (platform() === 'win32') {
+    expect(platform()).toBe('win32')
     return
   }
 
@@ -40,6 +45,9 @@ test('should handle Unix-style paths on Unix systems', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('/tmp')
 })
 
 test('should handle different line endings', async () => {
@@ -100,6 +108,9 @@ test('should handle different terminal sizes', async () => {
   await integrationTest.write('echo size test\n')
   await integrationTest.waitForOutput('size test')
 
+  const output = integrationTest.getOutput()
+  expect(output).toContain('size test')
+
   await integrationTest.dispose()
 })
 
@@ -110,6 +121,9 @@ test('should handle different encoding', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('unicode: 你好世界')
 })
 
 test('should handle special characters in commands', async () => {
@@ -124,4 +138,7 @@ test('should handle special characters in commands', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('quoted string')
 })
