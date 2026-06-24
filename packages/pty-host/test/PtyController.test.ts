@@ -13,6 +13,8 @@ test.skip('create', async () => {
   }
   // @ts-ignore
   await PtyController.create(1)
+  // @ts-ignore
+  expect(PtyController.state.ptyMap[1]).toBeDefined()
 })
 
 test.skip('dispose', async () => {

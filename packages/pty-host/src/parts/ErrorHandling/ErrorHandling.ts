@@ -13,7 +13,7 @@ const firstErrorLine = (error) => {
   if (error.message) {
     return error.message
   }
-  return `${error}`
+  return String(error)
 }
 
 export const handleUncaughtExceptionMonitor = (error: any): void => {

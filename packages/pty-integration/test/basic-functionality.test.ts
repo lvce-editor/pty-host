@@ -19,6 +19,9 @@ test('should execute simple command', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('hello world')
 })
 
 test('should handle pwd command', async () => {
@@ -28,6 +31,9 @@ test('should handle pwd command', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain(process.cwd())
 })
 
 test('should handle ls command', async () => {
@@ -37,6 +43,9 @@ test('should handle ls command', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('package.json')
 })
 
 test('should handle cd command', async () => {
@@ -46,6 +55,9 @@ test('should handle cd command', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain(process.cwd().split('/').slice(0, -1).join('/'))
 })
 
 test('should handle unknown command', async () => {
@@ -55,6 +67,9 @@ test('should handle unknown command', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('Command not found: unknown-command')
 })
 
 test('should handle exit command', async () => {
@@ -75,6 +90,9 @@ test('should handle multiple commands in sequence', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('first command')
 })
 
 test('should handle test-command for verification', async () => {
@@ -84,6 +102,9 @@ test('should handle test-command for verification', async () => {
   })
 
   await integrationTest.runTest()
+
+  const output = integrationTest.getOutput()
+  expect(output).toContain('test-output')
 })
 
 test.skip('should handle error command', async () => {
