@@ -11,10 +11,10 @@ export const test: Test = async ({
 }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.setFiles([
-    { content: 'content 1', uri: `${tmpDir}/file1.txt` },
-    { content: 'content 2', uri: `${tmpDir}/file2.txt` },
-    { content: 'content 3', uri: `${tmpDir}/file3.txt` },
+  await Promise.all([
+    FileSystem.writeFile(`${tmpDir}/file1.txt`, 'content 1'),
+    FileSystem.writeFile(`${tmpDir}/file2.txt`, 'content 2'),
+    FileSystem.writeFile(`${tmpDir}/file3.txt`, 'content 3'),
   ])
   await Workspace.setPath(tmpDir)
   await Explorer.selectIndices([0, 1])
