@@ -16,23 +16,20 @@ fi
 
 function updateDependencies {
   echo "updating dependencies..."
-  OUTPUT=`ncu -u -x @types/node -x lerna -x @babel/preset-typescript -x node-pty -x typescript`
-  SUB='All dependencies match the latest package versions'
-  if [[ "$OUTPUT" == *"$SUB"* ]]; then
-    echo "$OUTPUT"
-  else
-    rm -rf node_modules package-lock.json dist
-    npm install
-  fi
+  ncu -u -x @types/node -x @babel/preset-typescript -x node-pty -x typescript
 }
 
                                                        updateDependencies             &&
 cd packages/build                                   && updateDependencies && cd ../.. &&
+cd packages/e2e                                     && updateDependencies && cd ../.. &&
 cd packages/pty-host                                && updateDependencies && cd ../.. &&
+cd packages/pty-integration                         && updateDependencies && cd ../.. &&
 cd packages/memory                                  && updateDependencies && cd ../.. &&
 cd packages/server                                  && updateDependencies && cd ../.. &&
 cd packages/test-integration                        && updateDependencies && cd ../.. &&
-cd packages/test-integration-util                   && updateDependencies && cd ../.. &&
+cd packages/test-integration-util                   && updateDependencies && cd ../..
+
+npm install
 
 echo "Great Success!"
 
