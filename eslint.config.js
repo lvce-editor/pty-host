@@ -26,4 +26,10 @@ export default [
       '@cspell/spellchecker': 'off',
     },
   },
+  {
+    files: ['packages/pty-host/test/**/*.ts', 'packages/pty-integration/test/**/*.ts'],
+    rules: {
+      'jest/no-disabled-tests': 'off',
+    },
+  },
 ]
