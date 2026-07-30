@@ -13,7 +13,3 @@ export const get = (id) => {
 export const remove = (id) => {
   delete state.ptyMap[id]
 }
-
-export const getAll = () => {
-  return state.ptyMap
-}

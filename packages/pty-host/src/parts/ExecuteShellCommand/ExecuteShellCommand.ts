@@ -4,7 +4,7 @@ import type { ErrorResult } from '../SerializeError/SerializeError.ts'
 import * as Assert from '../Assert/Assert.ts'
 import { serializeError } from '../SerializeError/SerializeError.ts'
 
-export interface SuccessResult {
+interface SuccessResult {
   exitCode: number | null
   stderr: string
   stdout: string

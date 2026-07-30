@@ -1,0 +1,39 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "project": ["*.js"],
+      "ignoreUnresolved": ["../src/ptyHostMain.js"]
+    },
+    "packages/build": {
+      "project": ["src/**/*.js"]
+    },
+    "packages/e2e": {
+      "entry": ["src/**/*.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/memory": {
+      "entry": ["src/measureMemory.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/pty-host": {
+      "entry": ["src/ptyHostMain.ts", "test/**/*.test.ts"],
+      "project": ["src/**/*.ts", "test/**/*.ts"]
+    },
+    "packages/pty-integration": {
+      "entry": ["src/mock-shell.js", "test/**/*.test.ts"],
+      "project": ["src/**/*.{js,ts}", "test/**/*.ts"]
+    },
+    "packages/server": {
+      "project": ["src/**/*.js"]
+    },
+    "packages/test-integration": {
+      "entry": ["src/test.js", "src/**/*.test.js"],
+      "project": ["src/**/*.js"]
+    },
+    "packages/test-integration-util": {
+      "entry": ["src/setup.js", "src/worker.js"],
+      "project": ["src/**/*.js"]
+    }
+  }
+}
