@@ -47,9 +47,3 @@ export const dispose = (id) => {
   pty.dispose()
   PtyState.remove(id)
 }
-
-export const disposeAll = () => {
-  for (const id in PtyState.getAll()) {
-    dispose(id)
-  }
-}

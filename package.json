@@ -20,7 +20,7 @@
   "scripts": {
     "build": "node packages/build/src/build.js",
     "format": "prettier --write .",
-    "lint": "eslint .",
+    "lint": "eslint . && knip --no-config-hints",
     "test": "npm test --workspaces --if-present",
     "type-check": "tsc -b"
   },
@@ -30,7 +30,9 @@
   },
   "devDependencies": {
     "@lvce-editor/eslint-config": "^17.6.0",
+    "@lvce-editor/eslint-plugin-github-actions": "^17.6.0",
     "eslint": "^10.8.0",
+    "knip": "^6.29.0",
     "prettier": "^3.9.1",
     "typescript": "^6.0.3"
   },
