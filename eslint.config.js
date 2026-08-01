@@ -1,9 +1,9 @@
+import { defineConfig } from 'eslint/config'
 import * as config from '@lvce-editor/eslint-config'
-import * as actions from '@lvce-editor/eslint-plugin-github-actions'
 
-export default [
+export default defineConfig([
   ...config.default,
-  ...actions.default,
+  ...config.recommendedActions,
   {
     rules: {
       '@typescript-eslint/ban-ts-comment': 'off',
@@ -27,9 +27,12 @@ export default [
     },
   },
   {
-    files: ['packages/pty-host/test/**/*.ts', 'packages/pty-integration/test/**/*.ts'],
+    files: [
+      'packages/pty-host/test/**/*.ts',
+      'packages/pty-integration/test/**/*.ts',
+    ],
     rules: {
       'jest/no-disabled-tests': 'off',
     },
   },
-]
+])
