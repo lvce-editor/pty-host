@@ -1,6 +1,8 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 import { DataEvent } from '../src/parts/DataEvent/DataEvent.ts'
 import { ExitEvent } from '../src/parts/ExitEvent/ExitEvent.ts'
+import * as PtyController from '../src/parts/PtyController/PtyController.ts'
+import * as PtyState from '../src/parts/PtyState/PtyState.ts'
 
 class MockPty extends EventTarget {
   dispose = jest.fn()
@@ -8,19 +10,8 @@ class MockPty extends EventTarget {
   write = jest.fn()
 }
 
-let mockPty: MockPty
-const ptyCreate = jest.fn(async () => mockPty)
-
-jest.unstable_mockModule('../src/parts/Pty/Pty.js', () => ({
-  create: ptyCreate,
-}))
-
-const PtyController = await import('../src/parts/PtyController/PtyController.js')
-const PtyState = await import('../src/parts/PtyState/PtyState.js')
-
 beforeEach(() => {
   jest.clearAllMocks()
-  mockPty = new MockPty()
   PtyState.remove(1)
 })
 
@@ -28,7 +19,8 @@ test('create forwards data and exit events', async () => {
   const ipc = {
     send: jest.fn(),
   }
-  await PtyController.create(ipc, 1, '/workspace', '/bin/bash', [])
+  const mockPty = new MockPty()
+  await PtyController.createWithDependencies(ipc, 1, '/workspace', '/bin/bash', [], async () => mockPty)
 
   mockPty.dispatchEvent(new DataEvent('hello'))
   mockPty.dispatchEvent(new ExitEvent({ exitCode: 0, signal: 0 }))
@@ -47,7 +39,8 @@ test('create forwards data and exit events', async () => {
 })
 
 test('dispose kills and removes a running pty', async () => {
-  await PtyController.create({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [])
+  const mockPty = new MockPty()
+  await PtyController.createWithDependencies({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [], async () => mockPty)
 
   PtyController.dispose(1)
 
@@ -56,7 +49,8 @@ test('dispose kills and removes a running pty', async () => {
 })
 
 test('dispose does nothing after the pty has exited', async () => {
-  await PtyController.create({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [])
+  const mockPty = new MockPty()
+  await PtyController.createWithDependencies({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [], async () => mockPty)
   mockPty.dispatchEvent(new ExitEvent({ exitCode: 0, signal: 0 }))
 
   expect(() => PtyController.dispose(1)).not.toThrow()
