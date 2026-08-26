@@ -18,8 +18,17 @@ export const create = async (ipc, id, cwd, command, args) => {
       params: [id, 'handleData', event.data],
     })
   }
+  const handleExit = (event) => {
+    PtyState.remove(id)
+    ipc.send({
+      jsonrpc: '2.0',
+      method: 'Viewlet.send',
+      params: [id, 'handleExit', event.data],
+    })
+  }
 
   pty.addEventListener('data', handleData)
+  pty.addEventListener('exit', handleExit, { once: true })
   PtyState.set(id, pty)
 }
 
@@ -42,7 +51,7 @@ export const resize = (id, columns, rows) => {
 export const dispose = (id) => {
   const pty = PtyState.get(id)
   if (!pty) {
-    throw new Error(`pty ${id} not found`)
+    return
   }
   pty.dispose()
   PtyState.remove(id)
