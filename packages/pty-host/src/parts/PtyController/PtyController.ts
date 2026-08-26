@@ -3,14 +3,14 @@ import * as Pty from '../Pty/Pty.ts'
 import * as PtyState from '../PtyState/PtyState.ts'
 
 // TODO maybe merge pty and pty controller
-export const create = async (ipc, id, cwd, command, args) => {
+export const createWithDependencies = async (ipc, id, cwd, command, args, createPty) => {
   Assert.number(id)
   Assert.string(cwd)
   Assert.string(command)
   Assert.array(args)
   Assert.object(ipc)
   // @ts-ignore
-  const pty = await Pty.create({ args, command, cwd })
+  const pty = await createPty({ args, command, cwd })
   const handleData = (event) => {
     ipc.send({
       jsonrpc: '2.0',
@@ -18,9 +18,22 @@ export const create = async (ipc, id, cwd, command, args) => {
       params: [id, 'handleData', event.data],
     })
   }
+  const handleExit = (event) => {
+    PtyState.remove(id)
+    ipc.send({
+      jsonrpc: '2.0',
+      method: 'Viewlet.send',
+      params: [id, 'handleExit', event.data],
+    })
+  }
 
   pty.addEventListener('data', handleData)
+  pty.addEventListener('exit', handleExit, { once: true })
   PtyState.set(id, pty)
+}
+
+export const create = (ipc, id, cwd, command, args) => {
+  return createWithDependencies(ipc, id, cwd, command, args, Pty.create)
 }
 
 export const write = (id, data) => {
@@ -42,7 +55,7 @@ export const resize = (id, columns, rows) => {
 export const dispose = (id) => {
   const pty = PtyState.get(id)
   if (!pty) {
-    throw new Error(`pty ${id} not found`)
+    return
   }
   pty.dispose()
   PtyState.remove(id)
