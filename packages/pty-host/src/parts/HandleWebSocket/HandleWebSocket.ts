@@ -1,6 +1,6 @@
-import * as ConnectionLifecycle from '../ConnectionLifecycle/ConnectionLifecycle.ts'
 import { NodeWebSocketRpcClient } from '@lvce-editor/rpc'
 import * as Assert from '../Assert/Assert.ts'
+import * as ConnectionLifecycle from '../ConnectionLifecycle/ConnectionLifecycle.ts'
 import * as RequiresSocket from '../RequiresSocket/RequiresSocket.ts'
 
 export const handleWebSocket = async (
