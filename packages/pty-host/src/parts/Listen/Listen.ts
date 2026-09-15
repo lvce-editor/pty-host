@@ -4,9 +4,11 @@ import * as IpcChildType from '../IpcChildType/IpcChildType.ts'
 import * as RequiresSocket from '../RequiresSocket/RequiresSocket.ts'
 
 export const listen = async () => {
+  const method = IpcChildType.Auto()
   const rpc = await IpcChild.listen({
-    method: IpcChildType.Auto(),
+    method,
     requiresSocket: RequiresSocket.requiresSocket,
   })
-  ConnectionLifecycle.setParent(rpc)
+  if (method !== IpcChildType.ElectronUtilityProcess)
+    ConnectionLifecycle.setParent(rpc)
 }
