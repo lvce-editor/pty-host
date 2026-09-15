@@ -12,7 +12,6 @@ class MockPty extends EventTarget {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  PtyState.remove(1)
 })
 
 test('create forwards data and exit events', async () => {
@@ -42,13 +41,14 @@ test('create forwards data and exit events', async () => {
     method: 'Viewlet.send',
     params: [1, 'handleExit', { exitCode: 0, signal: 0 }],
   })
-  expect(PtyState.get(1)).toBeUndefined()
+  expect(PtyState.get(ipc, 1)).toBeUndefined()
 })
 
 test('dispose kills and removes a running pty', async () => {
   const mockPty = new MockPty()
+  const ipc = { send: jest.fn() }
   await PtyController.createWithDependencies(
-    { send: jest.fn() },
+    ipc,
     1,
     '/workspace',
     '/bin/bash',
@@ -56,16 +56,17 @@ test('dispose kills and removes a running pty', async () => {
     async () => mockPty,
   )
 
-  PtyController.dispose(1)
+  PtyController.dispose(ipc, 1)
 
   expect(mockPty.dispose).toHaveBeenCalledTimes(1)
-  expect(PtyState.get(1)).toBeUndefined()
+  expect(PtyState.get(ipc, 1)).toBeUndefined()
 })
 
 test('dispose does nothing after the pty has exited', async () => {
   const mockPty = new MockPty()
+  const ipc = { send: jest.fn() }
   await PtyController.createWithDependencies(
-    { send: jest.fn() },
+    ipc,
     1,
     '/workspace',
     '/bin/bash',
@@ -74,7 +75,7 @@ test('dispose does nothing after the pty has exited', async () => {
   )
   mockPty.dispatchEvent(new ExitEvent({ exitCode: 0, signal: 0 }))
 
-  expect(() => PtyController.dispose(1)).not.toThrow()
+  expect(() => PtyController.dispose(ipc, 1)).not.toThrow()
   expect(mockPty.dispose).not.toHaveBeenCalled()
 })
 
@@ -124,5 +125,38 @@ test('window close during pty creation kills the late pty', async () => {
   ready.resolve(pty)
   await expect(opening).rejects.toThrow('connection closed')
   expect(pty.dispose).toHaveBeenCalledTimes(1)
-  expect(PtyState.get(13)).toBeUndefined()
+  expect(PtyState.get(ipc, 13)).toBeUndefined()
+})
+
+test('terminal ids are scoped to their connection', async () => {
+  const first = { send: jest.fn() }
+  const second = { send: jest.fn() }
+  const firstPty = new MockPty()
+  const secondPty = new MockPty()
+  await PtyController.createWithDependencies(
+    first,
+    21,
+    '/',
+    'bash',
+    [],
+    async () => firstPty,
+  )
+  await PtyController.createWithDependencies(
+    second,
+    21,
+    '/',
+    'bash',
+    [],
+    async () => secondPty,
+  )
+  PtyController.write(first, 21, 'first')
+  PtyController.resize(second, 21, 100, 40)
+  expect(firstPty.write).toHaveBeenCalledWith('first')
+  expect(secondPty.write).not.toHaveBeenCalled()
+  expect(secondPty.resize).toHaveBeenCalledWith(100, 40)
+  PtyController.dispose(first, 21)
+  expect(firstPty.dispose).toHaveBeenCalledTimes(1)
+  expect(secondPty.dispose).not.toHaveBeenCalled()
+  expect(PtyState.get(second, 21)).toBe(secondPty)
+  PtyController.disposeConnection(second)
 })

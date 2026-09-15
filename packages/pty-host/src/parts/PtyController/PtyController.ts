@@ -64,7 +64,7 @@ export const createWithDependencies = async (
   }
   const handleExit = (event) => {
     entries.delete(entry)
-    if (PtyState.get(id) === pty) PtyState.remove(id)
+    if (PtyState.get(ipc, id) === pty) PtyState.remove(ipc, id)
     if (entry.closed) return
     ipc.send({
       jsonrpc: '2.0',
@@ -78,40 +78,40 @@ export const createWithDependencies = async (
     entries.delete(entry)
     pty.removeEventListener('data', handleData)
     pty.removeEventListener('exit', handleExit)
-    if (PtyState.get(id) === pty) PtyState.remove(id)
+    if (PtyState.get(ipc, id) === pty) PtyState.remove(ipc, id)
     cleanup.delete(pty)
   })
   pty.addEventListener('data', handleData)
   pty.addEventListener('exit', handleExit, { once: true })
-  PtyState.set(id, pty)
+  PtyState.set(ipc, id, pty)
 }
 
 export const create = (ipc, id, cwd, command, args) => {
   return createWithDependencies(ipc, id, cwd, command, args, Pty.create)
 }
 
-export const write = (id, data) => {
-  const pty = PtyState.get(id)
+export const write = (ipc, id, data) => {
+  const pty = PtyState.get(ipc, id)
   if (!pty) {
     throw new Error(`pty ${id} not found`)
   }
   pty.write(data)
 }
 
-export const resize = (id, columns, rows) => {
-  const pty = PtyState.get(id)
+export const resize = (ipc, id, columns, rows) => {
+  const pty = PtyState.get(ipc, id)
   if (!pty) {
     throw new Error(`pty ${id} not found`)
   }
   pty.resize(columns, rows)
 }
 
-export const dispose = (id) => {
-  const pty = PtyState.get(id)
+export const dispose = (ipc, id) => {
+  const pty = PtyState.get(ipc, id)
   if (!pty) {
     return
   }
   cleanup.get(pty)?.()
   pty.dispose()
-  if (PtyState.get(id) === pty) PtyState.remove(id)
+  if (PtyState.get(ipc, id) === pty) PtyState.remove(ipc, id)
 }

@@ -24,11 +24,15 @@ export const connect = async (
     if (closed) return
     closed = true
     handle.off('close', onClose)
-    if (rpc) PtyController.disposeConnection(rpc.ipc)
-    if (id !== undefined) void release(id)
+    try {
+      if (rpc) PtyController.disposeConnection(rpc.ipc)
+    } finally {
+      if (id !== undefined) void release(id)
+    }
   }
   handle.on('close', onClose)
   try {
+    if (handle.destroyed) throw new Error('Terminal connection closed')
     rpc = await create()
     if (closed) {
       PtyController.disposeConnection(rpc.ipc)
@@ -36,6 +40,8 @@ export const connect = async (
     }
   } catch (error) {
     onClose()
+    handle.destroy?.()
+    handle.close?.()
     throw error
   }
 }
