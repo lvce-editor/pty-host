@@ -161,3 +161,25 @@ test('handleWebsocket - error - socket is not defined', async () => {
     HandleWebSocket.handleWebSocket(socket, request),
   ).rejects.toThrow(new Error(`expected value to be of type object`))
 })
+
+test('reports the connection reservation when a real WebSocket disconnects', async () => {
+  const ConnectionLifecycle =
+    await import('../src/parts/ConnectionLifecycle/ConnectionLifecycle.ts')
+  const closed = Promise.withResolvers<any[]>()
+  ConnectionLifecycle.setParent({ send: (...args) => closed.resolve(args) })
+  const server = http.createServer()
+  const { httpRequest, webSocket } = await waitForFirstRequest(server)
+  try {
+    await HandleWebSocket.handleWebSocket(
+      httpRequest.socket,
+      getHandleMessage(httpRequest),
+      42,
+    )
+    await waitForSocketToOpen(webSocket)
+    webSocket.close()
+    await expect(closed.promise).resolves.toEqual(['PtyHost.release', 42])
+  } finally {
+    httpRequest.socket.destroy()
+    server.close()
+  }
+})
