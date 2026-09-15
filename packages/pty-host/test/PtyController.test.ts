@@ -20,7 +20,14 @@ test('create forwards data and exit events', async () => {
     send: jest.fn(),
   }
   const mockPty = new MockPty()
-  await PtyController.createWithDependencies(ipc, 1, '/workspace', '/bin/bash', [], async () => mockPty)
+  await PtyController.createWithDependencies(
+    ipc,
+    1,
+    '/workspace',
+    '/bin/bash',
+    [],
+    async () => mockPty,
+  )
 
   mockPty.dispatchEvent(new DataEvent('hello'))
   mockPty.dispatchEvent(new ExitEvent({ exitCode: 0, signal: 0 }))
@@ -40,7 +47,14 @@ test('create forwards data and exit events', async () => {
 
 test('dispose kills and removes a running pty', async () => {
   const mockPty = new MockPty()
-  await PtyController.createWithDependencies({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [], async () => mockPty)
+  await PtyController.createWithDependencies(
+    { send: jest.fn() },
+    1,
+    '/workspace',
+    '/bin/bash',
+    [],
+    async () => mockPty,
+  )
 
   PtyController.dispose(1)
 
@@ -50,9 +64,65 @@ test('dispose kills and removes a running pty', async () => {
 
 test('dispose does nothing after the pty has exited', async () => {
   const mockPty = new MockPty()
-  await PtyController.createWithDependencies({ send: jest.fn() }, 1, '/workspace', '/bin/bash', [], async () => mockPty)
+  await PtyController.createWithDependencies(
+    { send: jest.fn() },
+    1,
+    '/workspace',
+    '/bin/bash',
+    [],
+    async () => mockPty,
+  )
   mockPty.dispatchEvent(new ExitEvent({ exitCode: 0, signal: 0 }))
 
   expect(() => PtyController.dispose(1)).not.toThrow()
   expect(mockPty.dispose).not.toHaveBeenCalled()
+})
+
+test('window close disposes its terminals but preserves another window', async () => {
+  const first = { send: jest.fn() }
+  const second = { send: jest.fn() }
+  const firstPty = new MockPty()
+  const secondPty = new MockPty()
+  await PtyController.createWithDependencies(
+    first,
+    11,
+    '/',
+    'bash',
+    [],
+    async () => firstPty,
+  )
+  await PtyController.createWithDependencies(
+    second,
+    12,
+    '/',
+    'bash',
+    [],
+    async () => secondPty,
+  )
+  PtyController.disposeConnection(first)
+  PtyController.disposeConnection(first)
+  expect(firstPty.dispose).toHaveBeenCalledTimes(1)
+  expect(secondPty.dispose).not.toHaveBeenCalled()
+  firstPty.dispatchEvent(new DataEvent('late'))
+  expect(first.send).not.toHaveBeenCalled()
+  PtyController.disposeConnection(second)
+})
+
+test('window close during pty creation kills the late pty', async () => {
+  const ipc = { send: jest.fn() }
+  const ready = Promise.withResolvers<MockPty>()
+  const opening = PtyController.createWithDependencies(
+    ipc,
+    13,
+    '/',
+    'bash',
+    [],
+    () => ready.promise,
+  )
+  PtyController.disposeConnection(ipc)
+  const pty = new MockPty()
+  ready.resolve(pty)
+  await expect(opening).rejects.toThrow('connection closed')
+  expect(pty.dispose).toHaveBeenCalledTimes(1)
+  expect(PtyState.get(13)).toBeUndefined()
 })
