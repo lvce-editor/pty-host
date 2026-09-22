@@ -100,13 +100,13 @@ test('window close disposes its terminals but preserves another window', async (
     [],
     async () => secondPty,
   )
-  PtyController.disposeConnection(first)
-  PtyController.disposeConnection(first)
+  void PtyController.disposeConnection(first)
+  void PtyController.disposeConnection(first)
   expect(firstPty.dispose).toHaveBeenCalledTimes(1)
   expect(secondPty.dispose).not.toHaveBeenCalled()
   firstPty.dispatchEvent(new DataEvent('late'))
   expect(first.send).not.toHaveBeenCalled()
-  PtyController.disposeConnection(second)
+  void PtyController.disposeConnection(second)
 })
 
 test('window close during pty creation kills the late pty', async () => {
@@ -120,7 +120,7 @@ test('window close during pty creation kills the late pty', async () => {
     [],
     () => ready.promise,
   )
-  PtyController.disposeConnection(ipc)
+  void PtyController.disposeConnection(ipc)
   const pty = new MockPty()
   ready.resolve(pty)
   await expect(opening).rejects.toThrow('connection closed')
@@ -158,5 +158,5 @@ test('terminal ids are scoped to their connection', async () => {
   expect(firstPty.dispose).toHaveBeenCalledTimes(1)
   expect(secondPty.dispose).not.toHaveBeenCalled()
   expect(PtyState.get(second, 21)).toBe(secondPty)
-  PtyController.disposeConnection(second)
+  void PtyController.disposeConnection(second)
 })

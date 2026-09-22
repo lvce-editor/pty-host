@@ -40,7 +40,9 @@
     "@lvce-editor/command": "^2.0.0",
     "@lvce-editor/pretty-error": "^2.0.0",
     "@lvce-editor/rpc": "^6.4.0",
-    "@lvce-editor/verror": "^1.7.0"
+    "@lvce-editor/verror": "^1.7.0",
+    "@xterm/addon-serialize": "^0.14.0",
+    "@xterm/headless": "^6.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",

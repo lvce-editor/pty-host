@@ -1,4 +1,5 @@
 import * as Assert from '../Assert/Assert.ts'
+import * as PersistentTerminals from '../PersistentTerminals/PersistentTerminals.ts'
 import * as Pty from '../Pty/Pty.ts'
 import * as PtyState from '../PtyState/PtyState.ts'
 
@@ -6,11 +7,12 @@ const connections = new WeakMap<object, Set<{ pty?: any; closed: boolean }>>()
 const cleanup = new WeakMap<object, () => void>()
 const closedConnections = new WeakSet<object>()
 
-export const disposeConnection = (ipc: object): void => {
+export const disposeConnection = (ipc: object): Promise<void> | undefined => {
+  const detached = PersistentTerminals.detachConnection(ipc)
   closedConnections.add(ipc)
   const entries = connections.get(ipc)
   connections.delete(ipc)
-  if (!entries) return
+  if (!entries) return detached
   for (const entry of entries) {
     entry.closed = true
     if (entry.pty) {
@@ -18,6 +20,7 @@ export const disposeConnection = (ipc: object): void => {
       entry.pty.dispose()
     }
   }
+  return detached
 }
 
 // TODO maybe merge pty and pty controller
@@ -86,7 +89,29 @@ export const createWithDependencies = async (
   PtyState.set(ipc, id, pty)
 }
 
-export const create = (ipc, id, cwd, command, args) => {
+export const create = (
+  ipc,
+  id,
+  cwd,
+  command,
+  args,
+  options?: { sessionToken?: string; restoreOnly?: boolean },
+) => {
+  if (options?.sessionToken) {
+    Assert.number(id)
+    Assert.string(cwd)
+    Assert.string(command)
+    Assert.array(args)
+    if (closedConnections.has(ipc))
+      throw new Error('Terminal connection closed')
+    return PersistentTerminals.create(
+      ipc,
+      id,
+      options.sessionToken,
+      options.restoreOnly === true,
+      () => Pty.create({ args, command, cwd }),
+    )
+  }
   return createWithDependencies(ipc, id, cwd, command, args, Pty.create)
 }
 
