@@ -24,6 +24,14 @@ class Pty extends EventTarget {
     this.pty.onExit(handleExit)
   }
 
+  pause() {
+    this.pty.pause()
+  }
+
+  resume() {
+    this.pty.resume()
+  }
+
   resize(columns, rows) {
     this.pty.resize(columns, rows)
   }
