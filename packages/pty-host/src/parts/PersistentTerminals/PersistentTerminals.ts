@@ -1,5 +1,6 @@
+import type { Terminal } from '@xterm/headless'
 import { SerializeAddon } from '@xterm/addon-serialize'
-import { Terminal } from '@xterm/headless'
+import Headless from '@xterm/headless'
 import * as PtyState from '../PtyState/PtyState.ts'
 
 // Capability tokens are accepted only over a server-authenticated SSH transport.
@@ -93,7 +94,7 @@ export const detachConnection = (ipc: object): Promise<void> | undefined => {
 }
 
 const newSession = (token: string, createPty: () => Promise<any>): Session => {
-  const screen = new Terminal({
+  const screen = new Headless.Terminal({
     allowProposedApi: true,
     cols: 80,
     rows: 24,
