@@ -15,23 +15,25 @@ test('the bundled terminal process starts and shuts down over its control connec
     stderr += data
   })
   child.on('message', (message) => {
-    if (message === 'ready') {
-      ready = true
-      child.send({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'TerminalProcess.dispose',
-        params: [],
-      })
+    if (message !== 'ready') {
+    	return;
     }
+
+    ready = true
+    child.send({
+      id: 1,
+      jsonrpc: '2.0',
+      method: 'TerminalProcess.dispose',
+      params: [],
+    })
   })
   try {
     const [code, signal] = await once(child, 'close')
-    expect({ code, signal, stderr, ready }).toEqual({
+    expect({ code, ready, signal, stderr }).toEqual({
       code: 0,
+      ready: true,
       signal: null,
       stderr: '',
-      ready: true,
     })
   } finally {
     if (child.exitCode === null) child.kill()

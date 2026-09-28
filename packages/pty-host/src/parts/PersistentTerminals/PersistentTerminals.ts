@@ -1,5 +1,5 @@
-import { SerializeAddon } from '@xterm/addon-serialize'
 import type { Terminal } from '@xterm/headless'
+import { SerializeAddon } from '@xterm/addon-serialize'
 import Headless from '@xterm/headless'
 import * as PtyState from '../PtyState/PtyState.ts'
 
