@@ -16,7 +16,7 @@ test('the bundled terminal process starts and shuts down over its control connec
   })
   child.on('message', (message) => {
     if (message !== 'ready') {
-    	return;
+      return
     }
 
     ready = true
