@@ -162,7 +162,7 @@ test('terminal ids are scoped to their connection', async () => {
 })
 
 test('passes the terminal child environment to the PTY factory', async () => {
-  const createPty = jest.fn(async () => new MockPty())
+  const createPty = jest.fn(async (_options: unknown) => new MockPty())
   const ipc = { send: jest.fn() }
   const env = { ELECTRON_RUN_AS_NODE: '1' }
   await PtyController.createWithDependencies(

@@ -99,6 +99,7 @@ test('applies child environment overrides while retaining the host environment',
     pty.addEventListener('data', (event) => {
       data += (event as any).data
     })
+    // @ts-ignore wait-for-expect uses a CommonJS default export
     await waitForExpect(() => expect(data).toContain('child:inherited'))
     expect(process.env.LVCE_TEST_TERMINAL_CHILD).toBeUndefined()
   } finally {
