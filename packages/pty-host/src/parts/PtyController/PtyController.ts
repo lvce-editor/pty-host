@@ -31,6 +31,7 @@ export const createWithDependencies = async (
   command,
   args,
   createPty,
+  options: { env?: Readonly<Record<string, string>> } = {},
 ) => {
   Assert.number(id)
   Assert.string(cwd)
@@ -47,7 +48,12 @@ export const createWithDependencies = async (
   entries.add(entry)
   let pty: any
   try {
-    pty = await createPty({ args, command, cwd })
+    pty = await createPty({
+      args,
+      command,
+      cwd,
+      ...(options.env && { env: options.env }),
+    })
   } catch (error) {
     entries.delete(entry)
     throw error
@@ -95,7 +101,11 @@ export const create = (
   cwd,
   command,
   args,
-  options?: { sessionToken?: string; restoreOnly?: boolean },
+  options?: {
+    env?: Readonly<Record<string, string>>
+    sessionToken?: string
+    restoreOnly?: boolean
+  },
 ) => {
   if (options?.sessionToken) {
     Assert.number(id)
@@ -109,10 +119,24 @@ export const create = (
       id,
       options.sessionToken,
       options.restoreOnly === true,
-      () => Pty.create({ args, command, cwd }),
+      () =>
+        Pty.create({
+          args,
+          command,
+          cwd,
+          ...(options.env && { env: options.env }),
+        }),
     )
   }
-  return createWithDependencies(ipc, id, cwd, command, args, Pty.create)
+  return createWithDependencies(
+    ipc,
+    id,
+    cwd,
+    command,
+    args,
+    Pty.create,
+    options,
+  )
 }
 
 export const write = (ipc, id, data) => {

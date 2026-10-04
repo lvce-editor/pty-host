@@ -79,3 +79,31 @@ test('handle exec error', async () => {
 
   pty.dispose()
 })
+
+test('applies child environment overrides while retaining the host environment', async () => {
+  if (process.platform === 'win32') return
+  const previous = process.env.LVCE_TEST_TERMINAL_INHERITED
+  process.env.LVCE_TEST_TERMINAL_INHERITED = 'inherited'
+  let pty
+  try {
+    pty = await Pty.create({
+      args: [
+        '-e',
+        'process.stdin.resume(); console.log(process.env.LVCE_TEST_TERMINAL_CHILD + ":" + process.env.LVCE_TEST_TERMINAL_INHERITED)',
+      ],
+      command: process.execPath,
+      cwd: process.cwd(),
+      env: { LVCE_TEST_TERMINAL_CHILD: 'child' },
+    })
+    let data = ''
+    pty.addEventListener('data', (event) => {
+      data += (event as any).data
+    })
+    await waitForExpect(() => expect(data).toContain('child:inherited'))
+    expect(process.env.LVCE_TEST_TERMINAL_CHILD).toBeUndefined()
+  } finally {
+    pty?.dispose()
+    if (previous === undefined) delete process.env.LVCE_TEST_TERMINAL_INHERITED
+    else process.env.LVCE_TEST_TERMINAL_INHERITED = previous
+  }
+})
