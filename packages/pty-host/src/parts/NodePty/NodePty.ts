@@ -57,7 +57,7 @@ const toPath = (pathOrUri: string) => {
  * @param {*} param0
  * @returns {Promise<any>}
  */
-export const create = async ({ args, command, cwd }: any = {}) => {
+export const create = async ({ args, command, cwd, env }: any = {}) => {
   try {
     Assert.string(cwd)
     Assert.string(command)
@@ -69,6 +69,7 @@ export const create = async ({ args, command, cwd }: any = {}) => {
     const pty = spawn(command, args, {
       cwd: cwdPath,
       encoding: null,
+      ...(env && { env: { ...process.env, ...env } }),
       // cols: 10,
       // rows: 10,
     })

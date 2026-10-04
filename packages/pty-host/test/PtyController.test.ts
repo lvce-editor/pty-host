@@ -160,3 +160,25 @@ test('terminal ids are scoped to their connection', async () => {
   expect(PtyState.get(second, 21)).toBe(secondPty)
   void PtyController.disposeConnection(second)
 })
+
+test('passes the terminal child environment to the PTY factory', async () => {
+  const createPty = jest.fn(async (_options: unknown) => new MockPty())
+  const ipc = { send: jest.fn() }
+  const env = { ELECTRON_RUN_AS_NODE: '1' }
+  await PtyController.createWithDependencies(
+    ipc,
+    3912,
+    '/host',
+    '/electron',
+    [],
+    createPty,
+    { env },
+  )
+  expect(createPty).toHaveBeenCalledWith({
+    args: [],
+    command: '/electron',
+    cwd: '/host',
+    env,
+  })
+  PtyController.dispose(ipc, 3912)
+})

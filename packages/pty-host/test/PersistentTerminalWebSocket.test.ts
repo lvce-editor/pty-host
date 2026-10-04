@@ -84,6 +84,7 @@ test('authenticated websocket reload retains an actual shell and running command
     await first.invoke('Terminal.create', 1, process.cwd(), command, args, {
       sessionToken,
     })
+    if (process.platform === 'win32') await waitForOutput(first, 'PS ')
     const script =
       process.platform === 'win32'
         ? "$savedPid=$PID; Write-Output ('START'+'ED'); Start-Sleep -Seconds 1; Write-Output ('FIN'+'ISHED')\r"
