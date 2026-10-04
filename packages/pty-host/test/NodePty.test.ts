@@ -97,7 +97,7 @@ test('applies child environment overrides while retaining the host environment',
     })
     let data = ''
     pty.addEventListener('data', (event) => {
-      data += (event as any).data
+      data += event.data
     })
     // @ts-ignore wait-for-expect uses a CommonJS default export
     await waitForExpect(() => expect(data).toContain('child:inherited'))
