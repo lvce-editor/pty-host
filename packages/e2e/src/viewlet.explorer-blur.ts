@@ -16,7 +16,7 @@ export const test: Test = async ({
     FileSystem.writeFile(`${tmpDir}/file2.txt`, 'content 2'),
     FileSystem.writeFile(`${tmpDir}/file3.txt`, 'content 3'),
   ])
-  await Workspace.setPath(tmpDir)
+  await Workspace.setUri(tmpDir)
   await Explorer.selectIndices([0, 1])
 
   // act
