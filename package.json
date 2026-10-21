@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "@lvce-editor/eslint-config": "^18.14.2",
-    "eslint": "10.11.0",
-    "knip": "^6.29.0",
-    "prettier": "^3.9.1",
+    "eslint": "10.13.0",
+    "knip": "^6.42.1",
+    "prettier": "^3.9.10",
     "typescript": "^6.0.3"
   },
   "engines": {
