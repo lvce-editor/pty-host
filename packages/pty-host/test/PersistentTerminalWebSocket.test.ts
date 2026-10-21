@@ -79,12 +79,23 @@ test('authenticated websocket reload retains an actual shell and running command
   try {
     const sessionToken = randomBytes(32).toString('hex')
     const first = await connect()
-    const command = process.platform === 'win32' ? 'powershell.exe' : '/bin/sh'
-    const args = process.platform === 'win32' ? ['-NoLogo', '-NoProfile'] : []
+    const command = process.platform === 'win32' ? 'pwsh.exe' : '/bin/sh'
+    // Read shell input directly so this protocol test does not depend on
+    // PowerShell's interactive line editor or prompt initialization.
+    const args =
+      process.platform === 'win32'
+        ? [
+            '-NoLogo',
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            "Write-Output ('SHELL'+'READY'); while ($null -ne ($line = [Console]::ReadLine())) { Invoke-Expression $line }",
+          ]
+        : []
     await first.invoke('Terminal.create', 1, process.cwd(), command, args, {
       sessionToken,
     })
-    if (process.platform === 'win32') await waitForOutput(first, 'PS ')
+    if (process.platform === 'win32') await waitForOutput(first, 'SHELLREADY')
     const script =
       process.platform === 'win32'
         ? "$savedPid=$PID; Write-Output ('START'+'ED'); Start-Sleep -Seconds 1; Write-Output ('FIN'+'ISHED')\r"
