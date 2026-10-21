@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import * as Assert from '../Assert/Assert.ts'
 import { DataEvent } from '../DataEvent/DataEvent.ts'
 import { ExitEvent } from '../ExitEvent/ExitEvent.ts'
+import { resolveWindowsCommand } from '../ResolveWindowsCommand/ResolveWindowsCommand.ts'
 import { VError } from '../VError/VError.ts'
 
 class Pty extends EventTarget {
@@ -66,10 +67,28 @@ export const create = async ({ args, command, cwd, env }: any = {}) => {
 
     const cwdPath = toPath(cwd)
 
-    const pty = spawn(command, args, {
+    const childEnv = env ? { ...process.env, ...env } : { ...process.env }
+    let executable = command
+    if (process.platform === 'win32') {
+      const pathOverride = Object.entries(env || {}).find(
+        ([key]) => key.toLowerCase() === 'path',
+      )
+      const searchPath = pathOverride
+        ? String(pathOverride[1])
+        : process.env.PATH || ''
+      // CreateProcess searches System32 before PATH for bare names, even though
+      // node-pty validates a PATH match first. Pass that match to the spawn too.
+      executable = await resolveWindowsCommand(command, cwdPath, searchPath)
+      for (const key of Object.keys(childEnv)) {
+        if (key.toLowerCase() === 'path') delete childEnv[key]
+      }
+      childEnv.Path = searchPath
+    }
+
+    const pty = spawn(executable, args, {
       cwd: cwdPath,
       encoding: null,
-      ...(env && { env: { ...process.env, ...env } }),
+      env: childEnv,
       // cols: 10,
       // rows: 10,
     })
